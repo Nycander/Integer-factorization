@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
+#include <limits.h>
 
 #define VERBOSE 0
 
@@ -11,19 +12,21 @@ gmp_randstate_t rand_state;
 int current_input_number = 0;
 
 
-int main()
+int main(int argc, char * argv[])
 {
 #if VERBOSE
 	printf("Hyper mega global factoring program\n");
 	printf("-----------------------------------\n");
+	printf("argc: %d argv[1]: %s -> %d\n", argc, argv[1], atoi(argv[1]));
 	printf("> ");
 #endif
 
 	gmp_randinit_default(rand_state);
 
+	int limit = (argc == 2 ? atoi(argv[1]) : INT_MAX );
 
 	mpz_t num;
-	while(++current_input_number)
+	while(++current_input_number <= limit)
 	{
 		mpz_init(num);
 		gmp_scanf("%Zd", num);
@@ -153,14 +156,10 @@ void rho(mpz_t result, const mpz_t N)
 
 		mpz_gcd(divisor, x, N);
 
-		if (iterations++ == 20000000)
+		/*if (iterations++ == 20000000)
 		{
 			exit(current_input_number);
-		}
-
-#if VERBOSE
-		gmp_printf("\tx: %Zd, y: %Zd, diff: %Zd, gcd(diff, n) = %Zd\n", x, y, xyDiff, divisor);
-#endif
+		}*/
 	}
 
 	// Fail?
