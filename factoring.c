@@ -149,4 +149,3 @@ void rho(mpz_t result, const mpz_t N)
 	mpz_clear(x);
 	mpz_clear(y);
 }
-
