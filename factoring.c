@@ -23,14 +23,15 @@ int main()
 
 
 	mpz_t num;
-	mpz_init(num);
-	while(gmp_scanf("%Zd", num) > 0)
+	while(++current_input_number)
 	{
-		current_input_number++;
+		mpz_init(num);
+		gmp_scanf("%Zd", num);
 
 		factor(num);
 		printf("\n");
-		mpz_init(num);
+
+		mpz_clear(num);
 
 	#if VERBOSE
 		printf("> ");
@@ -40,8 +41,6 @@ int main()
 	gmp_randclear(rand_state);
 	return 0;
 }
-
-
 
 /**
  * Factor numbers using the Pollard's rho algorithm.
@@ -88,9 +87,40 @@ void factor(const mpz_t n)
 
 void rho(mpz_t result, const mpz_t N)
 {
+	// Check if divided by 2
 	if (mpz_even_p(N))
 	{
 		mpz_set_ui(result, 2);
+		return;
+	}
+	// Check if divided by 3
+	if (mpz_divisible_ui_p(N, 3))
+	{
+		mpz_set_ui(result, 3);
+		return;
+	}
+	// Check if divided by 5
+	if (mpz_divisible_ui_p(N, 5))
+	{
+		mpz_set_ui(result, 5);
+		return;
+	}
+	// Check if divided by 7
+	if (mpz_divisible_ui_p(N, 7))
+	{
+		mpz_set_ui(result, 7);
+		return;
+	}
+	// Check if divided by 7
+	if (mpz_divisible_ui_p(N, 11))
+	{
+		mpz_set_ui(result, 11);
+		return;
+	}
+	// Check if divided by 7
+	if (mpz_divisible_ui_p(N, 13))
+	{
+		mpz_set_ui(result, 13);
 		return;
 	}
 
@@ -118,14 +148,12 @@ void rho(mpz_t result, const mpz_t N)
 		mpz_add(y, y, c);
 		mpz_mod(y, y, N);
 
-		mpz_t xyDiff;
-		mpz_init(xyDiff);
-		mpz_sub(xyDiff, x, y);
-		mpz_abs(xyDiff, xyDiff);
+		mpz_sub(x, x, y);
+		mpz_abs(x, x);
 
-		mpz_gcd(divisor, xyDiff, N);
+		mpz_gcd(divisor, x, N);
 
-		if (iterations++ == 2000000)
+		if (iterations++ == 20000000)
 		{
 			exit(current_input_number);
 		}
@@ -139,8 +167,6 @@ void rho(mpz_t result, const mpz_t N)
 	if (mpz_cmp(divisor, N) == 0)
 	{
 		rho(divisor, N);
-		printf("Rho failed to find a good divisor. Exiting...");
-		exit(1);
 	}
 
 	// Great success
@@ -148,4 +174,5 @@ void rho(mpz_t result, const mpz_t N)
 	mpz_clear(divisor);
 	mpz_clear(x);
 	mpz_clear(y);
+	mpz_clear(c);
 }
