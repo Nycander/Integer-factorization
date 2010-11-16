@@ -11,6 +11,8 @@ int main()
 	while(gmp_scanf("%Zd", num) > 0)
 	{
 		factor(&num);
+		printf("\n");
+
 		mpz_init(num);
 	}
 	return 0;
@@ -19,6 +21,6 @@ int main()
 
 void factor(mpz_t * num)
 {
-	//gmp_printf("%Zd", num);
-	printf("fail\n\n");
+	//gmp_printf("%Zd\n", num);
+	printf("fail\n");
 }

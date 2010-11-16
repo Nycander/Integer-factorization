@@ -8,18 +8,18 @@ echo "! Compiling... "
 
 make -s
 
-number_of_tests=0
-
 echo "! Running tests... "
 
 # TODO: Run a bunch of tests
 ./runTests.sh
 
 failed_tests=$?
+number_of_tests=$(cat tests.txt | wc -l)
 
 if [ $failed_tests = 0 ]; then
-	echo "! Passed all tests! Sending to Kattis..."
+	echo "! Passed all $number_of_tests tests! Sending to Kattis..."
 	# TODO: Send to kattis
+	yes | ./submit.py factoring.c > /dev/null
 else
-	echo "! Failed $failed_tests tests."
+	echo "! Failed $failed_tests / $number_of_tests tests."
 fi
