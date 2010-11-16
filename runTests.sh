@@ -7,7 +7,7 @@ do
 	# Run program with input $line
 	output=$(echo "$line\\n^C" | ./factoring.exe)
 
-	if [ $output = "fail" ]; then
+	if [ "$output" = "fail" ]; then
 		continue
 	fi
 
