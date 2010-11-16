@@ -23,3 +23,5 @@ void factor(mpz_t * num)
 	//gmp_printf("%Zd\n", num);
 	printf("fail\n");
 }
+
+//tokko pissed on your code
