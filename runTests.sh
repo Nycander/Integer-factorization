@@ -13,8 +13,7 @@ do
 
 	result=1
 	resultstr="1"
-	for i in $output
-	do
+	for i in $output; do
 		# Check for prime number
 		isPrime=$(echo $i | ./checkForPrime.bsh)
 		if [ "$isPrime" = "$i is not prime" ]; then
