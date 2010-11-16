@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Simple way of approximating the square root using integer arithmetics
+function sqrt() # $1 - number
+{
+    local i=1 j=1 n=$1
+    while (( i*i <= n )); do
+        j=$i
+        ((i++))
+    done
+    echo $j
+}
+
+function isprime() # $1 - number, returns 0 (true) or 1 (false)
+{
+    local i=3 n=$1 h=0
+
+    # Only considering 2 or greater
+    (( $n >= 2 )) || return 1
+
+    # Trivial cases
+    (( $n == 2 || $n == 3 )) && return 0
+
+    (( n % 2  == 0 )) && return 1
+    h=$(( `sqrt $n` + 1 ))
+    while (( i < h )); do
+        (( n % i == 0 )) && return 1
+        (( i += 2 ))
+    done
+    return 0
+}
+
+
+# If no arguments are given, prompt for an integer
+[ $# == 0 ] && read -p "Enter integer number: " n || n=$1
+
+isprime $n && echo "$n is prime" || echo "$n is not prime"
