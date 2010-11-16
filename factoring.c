@@ -86,6 +86,7 @@ void factor(const mpz_t n)
 	return;
 }
 
+<<<<<<< HEAD
 void rho(mpz_t result, const mpz_t N)
 {
 	if (mpz_even_p(N))
@@ -149,4 +150,3 @@ void rho(mpz_t result, const mpz_t N)
 	mpz_clear(x);
 	mpz_clear(y);
 }
-
