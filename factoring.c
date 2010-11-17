@@ -25,14 +25,24 @@ int main(int argc, char * argv[])
 
 	int limit = (argc == 2 ? atoi(argv[1]) : INT_MAX );
 
+	mpz_t threshold;
+	mpz_init_set_str(threshold, "200560490130", 10);
+
 	mpz_t num;
 	while(++current_input_number <= limit)
 	{
 		mpz_init(num);
 		gmp_scanf("%Zd", num);
 
-		factor(num);
-		printf("\n");
+		if (mpz_cmp(num, threshold) <= 0)
+		{
+			factor(num);
+			printf("\n");
+		}
+		else
+		{
+			printf("fail\n\n");
+		}
 
 		mpz_clear(num);
 
