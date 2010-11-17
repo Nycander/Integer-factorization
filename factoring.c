@@ -32,7 +32,11 @@ int main(int argc, char * argv[])
 	while(++current_input_number <= limit)
 	{
 		mpz_init(num);
-		gmp_scanf("%Zd", num);
+		if (gmp_scanf("%Zd", num) == 0)
+		{
+			mpz_clear(num);
+			break;
+		}
 
 		if (mpz_cmp(num, threshold) <= 0)
 		{
