@@ -26,13 +26,14 @@ int main(int argc, char * argv[])
 	int limit = (argc == 2 ? atoi(argv[1]) : INT_MAX );
 
 	mpz_t threshold;
-	mpz_init_set_str(threshold, "200560490130", 10);
+	mpz_init_set_str(threshold, "13082761331670030", 10); // Brute-forced value @ kattis
+	gmp_printf("%Zd\n", threshold);
 
 	mpz_t num;
 	while(++current_input_number <= limit)
 	{
 		mpz_init(num);
-		if (gmp_scanf("%Zd", num) == 0)
+		if (gmp_scanf("%Zd", num) <= 0)
 		{
 			mpz_clear(num);
 			break;
