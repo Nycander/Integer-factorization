@@ -3,7 +3,7 @@
 #include <gmp.h>
 #include <limits.h>
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 void factor(const mpz_t n);
 void rho(mpz_t res, const mpz_t N);
@@ -17,7 +17,6 @@ int main(int argc, char * argv[])
 #if VERBOSE
 	printf("Hyper mega global factoring program\n");
 	printf("-----------------------------------\n");
-	printf("argc: %d argv[1]: %s -> %d\n", argc, argv[1], atoi(argv[1]));
 	printf("> ");
 #endif
 
@@ -127,20 +126,18 @@ void rho(mpz_t result, const mpz_t N)
 		mpz_set_ui(result, 7);
 		return;
 	}
-	// Check if divided by 7
+	// Check if divided by 11
 	if (mpz_divisible_ui_p(N, 11))
 	{
 		mpz_set_ui(result, 11);
 		return;
 	}
-	// Check if divided by 7
+	// Check if divided by 13
 	if (mpz_divisible_ui_p(N, 13))
 	{
 		mpz_set_ui(result, 13);
 		return;
 	}
-
-
 
 	mpz_t x; 		mpz_init(x);
 	mpz_urandomm(x, rand_state, N);
