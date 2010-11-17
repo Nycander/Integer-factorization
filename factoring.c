@@ -27,7 +27,6 @@ int main(int argc, char * argv[])
 
 	mpz_t threshold;
 	mpz_init_set_str(threshold, "13082761331670030", 10); // Brute-forced value @ kattis
-	gmp_printf("%Zd\n", threshold);
 
 	mpz_t num;
 	while(++current_input_number <= limit)
