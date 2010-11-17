@@ -1,8 +1,3 @@
-
-h1. Länkar
-
-* "Factoring large numbers with quadratic sieve @ MSDN":http://blogs.msdn.com/b/devdev/archive/2006/06/19/637332.aspx
-
 h1. TODO
 
 * Skapa en egen funktion för att "dela med låga primtal"
@@ -17,3 +12,14 @@ h2. Pollard's Rho
 h2. Quadratic Sieve
 
 * Oh the research...
+
+h1. Links
+
+* "GMP Documentation":http://gmplib.org/manual/index.html
+* "Primes @ Wolframalpha":http://www.wolframalpha.com/input/?i=primes+%3C%3D+2^100
+
+* "Pollard's rho algorithm":http://en.wikipedia.org/wiki/Pollard's_rho_algorithm
+* "Pollard's rho implementation in java":http://www.cs.princeton.edu/introcs/78crypto/PollardRho.java.html
+
+* "Quadratic Sieve @ Wikipedia":http://en.wikipedia.org/wiki/Quadratic_sieve
+* "Factoring large numbers with quadratic sieve @ MSDN":http://blogs.msdn.com/b/devdev/archive/2006/06/19/637332.aspx
