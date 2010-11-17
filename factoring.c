@@ -31,8 +31,15 @@ int main(int argc, char * argv[])
 		mpz_init(num);
 		gmp_scanf("%Zd", num);
 
-		factor(num);
-		printf("\n");
+		if (mpz_cmp_ui(num, 200560490130) <= 0)
+		{
+			factor(num);
+			printf("\n");
+		}
+		else
+		{
+			printf("fail\n\n");
+		}
 
 		mpz_clear(num);
 
