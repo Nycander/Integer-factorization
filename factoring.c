@@ -40,7 +40,6 @@ int main(int argc, char * argv[])
 		printf("> ");
 	#endif
 	}
-	mpz_clear(num);
 	gmp_randclear(rand_state);
 	return 0;
 }
@@ -141,7 +140,7 @@ void rho(mpz_t result, const mpz_t N)
 
 	unsigned int iterations = 0;
 
-	while(mpz_cmp_ui(divisor, 1) == 0)
+	while(mpz_cmp_ui(divisor, 1) == 0 || mpz_cmp(divisor, N) == 0)
 	{
 		mpz_mul(x, x, x);
 		mpz_add(x, x, c);
@@ -160,12 +159,6 @@ void rho(mpz_t result, const mpz_t N)
 		{
 			exit(current_input_number);
 		}*/
-	}
-
-	// Fail?
-	if (mpz_cmp(divisor, N) == 0)
-	{
-		rho(divisor, N);
 	}
 
 	// Great success
