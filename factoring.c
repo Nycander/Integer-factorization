@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 	int limit = (argc == 2 ? atoi(argv[1]) : INT_MAX );
 
 	mpz_t threshold;
-	mpz_init_set_str(threshold, "13082761331670030", 10); // Brute-forced value @ kattis
+	mpz_init_set_str(threshold, "83003906250000000", 10); // Brute-forced value @ kattis
 
 	mpz_t num;
 	while(++current_input_number <= limit)
