@@ -1,7 +1,7 @@
 
 h1. Länkar
 
-* "Teoriförklaringar på MSDN":http://blogs.msdn.com/b/devdev/archive/2006/06/19/637332.aspx
+* "Factoring large numbers with quadratic sieve @ MSDN":http://blogs.msdn.com/b/devdev/archive/2006/06/19/637332.aspx
 
 h1. TODO
 
