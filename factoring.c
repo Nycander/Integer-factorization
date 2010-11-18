@@ -7,7 +7,7 @@
 #define VERBOSE 0
 
 #include "factor.h"
-#include "pollard.c"
+#include "pollard.h"
 
 
 int current_input_number = 0;

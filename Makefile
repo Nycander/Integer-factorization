@@ -1,2 +1,2 @@
-main: factoring.c
-	gcc -o factoring.exe factoring.c -O2 -std=gnu99 -lgmp -lm -Wall -g
+main: factoring.c pollard.c
+	gcc -o factoring.exe pollard.c factoring.c -O2 -std=gnu99 -lgmp -lm -Wall -g

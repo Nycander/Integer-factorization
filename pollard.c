@@ -1,4 +1,5 @@
 #include <gmp.h>
+#include <stdlib.h>
 
 #include "factor.h"
 #include "pollard.h"
