@@ -1,8 +1,7 @@
-
 #include <stdlib.h>
 #include <gmp.h>
 
-#include "factor.h"
+#include "factor_list.h"
 #include "pollard.h"
 
 /**
@@ -10,19 +9,19 @@
  *
  * @return 0 if failed
  */
-int pollard(factor ** f, const mpz_t n)
+int pollard(factor_list ** f, const mpz_t n)
 {
 	if (mpz_cmp_ui(n, 1) <= 0)
 	{
 		return 1;
 	}
 
-	// If we REALLY have a prime number
-	if (mpz_probab_prime_p(n, 20))
+	// If we have a prime number
+	if (mpz_probab_prime_p(n, 10))
 	{
 		mpz_t * v = malloc(sizeof(mpz_t));
 		mpz_init_set(*v, n);
-		factor_add(f, v);
+		factor_list_add(f, v);
 		return 1;
 	}
 

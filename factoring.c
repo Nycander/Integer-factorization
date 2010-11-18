@@ -3,12 +3,51 @@
 #include <gmp.h>
 #include <limits.h>
 
-#define VERBOSE 0
+#define VERBOSE 1
 
-#include "factor.h"
+#include "factor_list.h"
+#include "trialdivision.h"
 #include "pollard.h"
 
 int current_input_number = 0;
+
+void factor(mpz_t n)
+{
+	factor_list * factors = malloc(sizeof(factor_list));
+	factors->value = NULL;
+	factors->next = NULL;
+
+	// Exhaust trivial primes with trial division
+	while(2)
+	{
+		mpz_t * newPointer = trial_division(&factors, n);
+		if (newPointer == 0)
+			break;
+
+		n = *newPointer;
+	}
+
+#if VERBOSE
+	gmp_printf("\tAfter exhausting trivial primes: %Zd\n", n);
+#endif
+
+	if (pollard(&factors, n))
+	{
+		while(*(factors->value) != NULL)
+		{
+			gmp_printf("%Zd\n", factors->value);
+			factors = factors->next;
+		}
+		printf("\n");
+	}
+	else
+	{
+		printf("fail\n\n");
+	}
+
+	// TODO: free the linked list!
+}
+
 
 int main(int argc, char * argv[])
 {
@@ -33,27 +72,9 @@ int main(int argc, char * argv[])
 			break;
 		}
 
-		factor * factors = malloc(sizeof(factor));
-		factors->value = NULL;
-		factors->next = NULL;
-		if (pollard(&factors, num))
-		{
-			while(*(factors->value) != NULL)
-			{
-				gmp_printf("%Zd\n", factors->value);
-				factors = factors->next;
-			}
-			printf("\n");
-		}
-		else
-		{
-			printf("fail\n\n");
-		}
-
-		// TODO: free the linked list!
+		factor(num);
 
 		mpz_clear(num);
-
 	}
 	return 0;
 }

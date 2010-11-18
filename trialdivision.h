@@ -1,6 +1,9 @@
-#ifndef __TRIAL_DIVISION_H_
-#define __TRIAL_DIVISION_H_
+#ifndef TRIAL_DIVISION_H
+#define TRIAL_DIVISION_H
 
-int trial_division(factor ** f, const mpz_t n);
+#include <gmp.h>
+#include "factor_list.h"
 
-#ifndef
+mpz_t * trial_division(factor_list ** f, const mpz_t n);
+
+#endif
