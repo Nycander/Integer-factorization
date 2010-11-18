@@ -1,8 +1,7 @@
 #include <gmp.h>
 
 #include "factor.h"
-
-int rho(mpz_t res, const mpz_t N);
+#include "pollard.h"
 
 /**
  * Factor numbers using the Pollard's rho algorithm.

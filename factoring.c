@@ -45,6 +45,7 @@ int main(int argc, char * argv[])
 				gmp_printf("%Zd\n", factors->value);
 				factors = factors->next;
 			}
+			printf("\n");
 		}
 		else
 		{
