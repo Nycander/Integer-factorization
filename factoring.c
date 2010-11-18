@@ -3,7 +3,7 @@
 #include <gmp.h>
 #include <limits.h>
 
-#define VERBOSE 1
+#define VERBOSE 0
 
 #include "factor_list.h"
 #include "trialdivision.h"
