@@ -3,12 +3,10 @@
 #include <gmp.h>
 #include <limits.h>
 
-
 #define VERBOSE 0
 
 #include "factor.h"
 #include "pollard.h"
-
 
 int current_input_number = 0;
 
@@ -51,6 +49,8 @@ int main(int argc, char * argv[])
 		{
 			printf("fail\n\n");
 		}
+
+		// TODO: free the linked list!
 
 		mpz_clear(num);
 
