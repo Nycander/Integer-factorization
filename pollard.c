@@ -93,7 +93,7 @@ int rho(mpz_t result, const mpz_t N)
 
 		mpz_clear(x);
 
-		if (iterations++ == 100000)
+		if (iterations++ == 200000)
 		{
 			mpz_clear(divisor);
 			return 0;
