@@ -67,10 +67,13 @@ def showhelp():
 if __name__ == '__main__':
 	cfg = ConfigParser.ConfigParser()
 	try:
-		cfg.readfp(open(os.path.join(os.getenv('HOME'), '.kattisrc')));
+		cfg.readfp(open('.kattisrc'));
 	except IOError, (errno, strerror):
-		print _RC_HELP
-		sys.exit(1)
+		try:
+			cfg.readfp(open(os.path.join(os.getenv('HOME'), '.kattisrc')));
+		except IOError, (errno, strerror):
+			print _RC_HELP
+			sys.exit(1)
 
 	problem=None
 	mainclass=None
@@ -109,7 +112,7 @@ if __name__ == '__main__':
 
 	if mainclass == None and language.upper() == 'JAVA':
 		mainclass = spl[0]
-	
+
 	bodyfields = { 'author' : cfg.get('user', 'username'), 'password' : cfg.get('user', 'password') }
 	if librarypath != None:
 		bodyfields['librarypath'] = librarypath

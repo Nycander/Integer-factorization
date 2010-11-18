@@ -3,19 +3,16 @@ h1. TODO
 * Trial division: skapa en egen funktion för att "dela med låga primtal" (typ de första 100)
 * Cache:a tidigare uträknade faktoriseringar (dynamisk programmering?? :D) och återanvänd smart (ger billigare uträkningar mot slutet?)
 * Faktoriseringsmetoder bör returnera en bool (fast int, lol) så att man enklare kan outputt:a "fail"
+* -Factors should be stored in a linked list, which each factor method fills up.-
+* -Factor method should return whether it successfully (completely) factored the number or not.-
 
 h2. Pollard's Rho
 
-* Shit is slow, why?
+* Use a better algorithm for choosing x and y
 
 h2. Quadratic Sieve
 
 * Oh the research...
-
-h2. Completed stuff
-
-* -Factors should be stored in a linked list, which each factor method fills up.-
-* -Factor method should return whether it successfully (completely) factored the number or not.-
 
 h1. Links
 
