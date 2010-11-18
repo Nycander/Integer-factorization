@@ -3,10 +3,12 @@
 #include <gmp.h>
 #include <limits.h>
 
+
+#define VERBOSE 0
+
 #include "factor.h"
 #include "pollard.c"
 
-#define VERBOSE 1
 
 int current_input_number = 0;
 
@@ -15,17 +17,17 @@ int main(int argc, char * argv[])
 #if VERBOSE
 	printf("Hyper mega global factoring program\n");
 	printf("-----------------------------------\n");
-	printf("> ");
 #endif
 
 	int limit = (argc == 2 ? atoi(argv[1]) : INT_MAX );
 
-	mpz_t threshold;
-	mpz_init_set_str(threshold, "83003906250000000", 10); // Brute-forced value @ kattis
-
 	mpz_t num;
 	while(++current_input_number <= limit)
 	{
+#if VERBOSE
+		printf("> ");
+#endif
+
 		mpz_init(num);
 		if (gmp_scanf("%Zd", num) <= 0)
 		{
@@ -51,9 +53,6 @@ int main(int argc, char * argv[])
 
 		mpz_clear(num);
 
-	#if VERBOSE
-		printf("> ");
-	#endif
 	}
 	return 0;
 }

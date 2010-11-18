@@ -2,8 +2,6 @@
 
 #include "factor.h"
 
-#define VERBOSE 1
-
 int rho(mpz_t res, const mpz_t N);
 
 /**
@@ -77,37 +75,31 @@ int rho(mpz_t result, const mpz_t N)
 	gmp_randstate_t rand_state;
 	gmp_randinit_default(rand_state);
 
-	mpz_t x; 		mpz_init(x);
-	mpz_urandomm(x, rand_state, N);
-	mpz_mod(x, x, N);
-
-	gmp_randclear(rand_state);
-
-	mpz_t y; 		mpz_init(y);
-	mpz_t divisor;	mpz_init_set_ui(divisor, 1);
+	mpz_t divisor;
+	mpz_init_set_ui(divisor, 1);
 
 	unsigned int iterations = 0;
 
 	while(mpz_cmp_ui(divisor, 1) == 0 || mpz_cmp(divisor, N) == 0)
 	{
-		mpz_mul(x, x, x);
-		mpz_add_ui(x, x, 1);
-		mpz_mod(x, x, N);
+		mpz_t x; 		mpz_init(x);
+		mpz_urandomm(x, rand_state, N);
 
-		mpz_mul(y, x, x);
-		mpz_add_ui(y, y, 1);
-		mpz_mod(y, y, N);
+		mpz_t y; 		mpz_init(y);
+		mpz_urandomm(y, rand_state, N);
 
 		mpz_sub(x, x, y);
 		mpz_abs(x, x);
 
+		mpz_clear(y);
+
 		mpz_gcd(divisor, x, N);
+
+		mpz_clear(x);
 
 		if (iterations++ == 1000000)
 		{
 			mpz_clear(divisor);
-			mpz_clear(x);
-			mpz_clear(y);
 			return 0;
 		}
 	}
@@ -115,7 +107,6 @@ int rho(mpz_t result, const mpz_t N)
 	// Great success
 	mpz_set(result, divisor);
 	mpz_clear(divisor);
-	mpz_clear(x);
-	mpz_clear(y);
+	gmp_randclear(rand_state);
 	return 1;
 }
