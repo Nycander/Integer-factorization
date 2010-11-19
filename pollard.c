@@ -78,20 +78,16 @@ int rho(mpz_t result, const mpz_t N)
 
 	while(mpz_cmp_ui(divisor, 1) == 0)
 	{
-		f(x, x, N);
-		f(y, x, N);
-
-		mpz_sub(x, x, y);
-		mpz_abs(x, x);
-
-		mpz_gcd(divisor, x, N);
-
 		if (iterations++ == POLLARD_THRESHOLD)
 		{
-		#if VERBOSE
+			#if VERBOSE
 			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
-		#endif
+			#endif
 			mpz_clear(divisor);
+			return 0;
+		}
+		if(!brent(x, N, divisor))
+		{
 			return 0;
 		}
 	}
@@ -104,6 +100,62 @@ int rho(mpz_t result, const mpz_t N)
 	return 1;
 }
 
+int brent(mpz_t x, const mpz_t N, mpz_t divisor)
+{
+	
+	mpz_t tortoise, hare; mpz_init(tortoise); mpz_init(hare);
+	unsigned int power = 1, lam = 1;
+	mpz_set(tortoise, x);
+	f(hare, tortoise, N);
+	while(mpz_cmp(tortoise, hare) != 0)
+	{
+		if(power == lam)
+		{
+			mpz_set(tortoise, hare);
+			power *= 2;
+			lam = 0;
+		}
+		f(hare, hare, divisor);
+		lam++;
+	}
+	unsigned int mu = 0;
+	mpz_set(tortoise, x); mpz_set(hare, x);
+	int i;
+	for(i=0; i<lam;i++)
+	{
+		f(hare, hare, N);
+	}
+	while(mpz_cmp(tortoise, hare) != 0)
+	{
+		f(tortoise, tortoise, N);
+		f(hare, hare, N);
+		mu++;
+	}
+	mpz_sub(tortoise, tortoise, hare);
+	mpz_abs(tortoise, tortoise);
+	mpz_gcd(divisor, tortoise, N);
+	return 1;
+}
+int floyd(mpz_t x, mpz_t y, mpz_t N, mpz_t divisor)
+{
+	f(x, x, N);
+	f(y, x, N);
+
+	mpz_sub(x, x, y);
+	mpz_abs(x, x);
+
+	mpz_gcd(divisor, x, N);
+
+	/*if (iterations++ == POLLARD_THRESHOLD)
+	{
+	#if VERBOSE
+		gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
+	#endif
+		mpz_clear(divisor);
+		return 0;
+	}*/
+	return 1;
+}
 void f(mpz_t result, mpz_t x, const mpz_t N)
 {
 	mpz_clear(result);
