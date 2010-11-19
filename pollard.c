@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <gmp.h>
 
 #include "settings.h"
@@ -17,9 +18,8 @@ int pollard(factor_list ** f, const mpz_t n)
 	{
 		return 1;
 	}
-
 	// Base case: we have a prime number
-	if (mpz_probab_prime_p(n, 10))
+	else if (mpz_probab_prime_p(n, 10))
 	{
 		mpz_t * v = malloc(sizeof(mpz_t));
 		mpz_init_set(*v, n);
@@ -27,20 +27,26 @@ int pollard(factor_list ** f, const mpz_t n)
 		return 1;
 	}
 
+
 #if VERBOSE
 	gmp_printf("\tSearching for x * y = %Zd ...\n", n);
 #endif
 
-	mpz_t divisor;
-	mpz_init(divisor);
+	mpz_t divisor;		mpz_init(divisor);
+	mpz_t divend;		mpz_init(divend);
+	// Check for even square root
+	if (mpz_perfect_square_p(n))
+	{
+		mpz_sqrt(divisor, n);
+		mpz_set(divend, divisor);
+	}
+	else
+	{
+		if (! rho(divisor, n))
+			return 0;
 
-	if (! rho(divisor, n))
-		return 0;
-
-	mpz_t divend;
-	mpz_init(divend);
-	mpz_divexact(divend, n, divisor);
-
+		mpz_divexact(divend, n, divisor);
+	}
 
 #if VERBOSE
 	gmp_printf("\tFound: %Zd * %Zd = %Zd\n", divisor, divend, n);
@@ -77,7 +83,10 @@ int rho(mpz_t result, const mpz_t N)
 #else
 	if(! floyd(N, divisor))
 #endif
+	{
+		mpz_clear(divisor);
 		return 0;
+	}
 
 	// Great success
 	mpz_set(result, divisor);
@@ -105,8 +114,8 @@ int floyd(const mpz_t N, mpz_t divisor)
 {
 	mpz_t x;		mpz_init_set_ui(x, 2);
 	mpz_t y;		mpz_init_set_ui(y, 2);
-	unsigned int iterations = 0;
 
+	unsigned long iterations = 0;
 	while(mpz_cmp_ui(divisor, 1) == 0)
 	{
 		if (++iterations == POLLARD_THRESHOLD)
@@ -116,23 +125,48 @@ int floyd(const mpz_t N, mpz_t divisor)
 		#endif
 			mpz_clear(x);
 			mpz_clear(y);
-			mpz_clear(divisor);
 			return 0;
 		}
 
-		f(x, x, N);
-		f(y, x, N);
-	#if VERBOSE
-		gmp_printf("x = %Zd, y = %Zd ...  ", x, y);
-	#endif
+		#if VERBOSE
+		gmp_printf("\tx = f(%Zd)", x);
+		#endif
 
-		mpz_sub(x, x, y);
-		mpz_abs(x, x);
+		f(x, x, N); // x = f(x)
 
-		if (mpz_cmp_ui(x, 0) == 0)
-			continue;
+		#if VERBOSE
+		gmp_printf(" = %Zd,\t", x);
+		gmp_printf("y = f(f(%Zd))", y);
+		#endif
 
-		mpz_gcd(divisor, x, N);
+		f(y, y, N); // y = f(x)
+		f(y, y, N); // y = f(x)
+		#if VERBOSE
+		gmp_printf(" = %Zd", y);
+		#endif
+
+		mpz_t diff;	mpz_init(diff);
+		mpz_sub(diff, x, y);
+		mpz_abs(diff, diff);
+		#if VERBOSE
+		gmp_printf(",\t|x-y| = %Zd", diff);
+		#endif
+
+		if (mpz_cmp_ui(diff, 0) == 0)
+		{
+		#if VERBOSE
+			gmp_printf("...\n\tVisited all numbers after %d iterations on number: %Zd\n", iterations-1, N);
+		#endif
+			mpz_clear(x);
+			mpz_clear(y);
+			return 0;
+		}
+
+		mpz_gcd(divisor, diff, N);
+		mpz_clear(diff);
+		#if VERBOSE
+		gmp_printf(",\tdivisor = %Zd\n", divisor);
+		#endif
 	}
 
 	mpz_clear(x);
