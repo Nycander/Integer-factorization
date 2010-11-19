@@ -18,9 +18,8 @@ int pollard(factor_list ** f, const mpz_t n)
 	{
 		return 1;
 	}
-
 	// Base case: we have a prime number
-	if (mpz_probab_prime_p(n, 10))
+	else if (mpz_probab_prime_p(n, 10))
 	{
 		mpz_t * v = malloc(sizeof(mpz_t));
 		mpz_init_set(*v, n);
@@ -28,20 +27,26 @@ int pollard(factor_list ** f, const mpz_t n)
 		return 1;
 	}
 
+
 #if VERBOSE
 	gmp_printf("\tSearching for x * y = %Zd ...\n", n);
 #endif
 
-	mpz_t divisor;
-	mpz_init(divisor);
+	mpz_t divisor;		mpz_init(divisor);
+	mpz_t divend;		mpz_init(divend);
+	// Check for even square root
+	if (mpz_perfect_square_p(n))
+	{
+		mpz_sqrt(divisor, n);
+		mpz_set(divend, divisor);
+	}
+	else
+	{
+		if (! rho(divisor, n))
+			return 0;
 
-	if (! rho(divisor, n))
-		return 0;
-
-	mpz_t divend;
-	mpz_init(divend);
-	mpz_divexact(divend, n, divisor);
-
+		mpz_divexact(divend, n, divisor);
+	}
 
 #if VERBOSE
 	gmp_printf("\tFound: %Zd * %Zd = %Zd\n", divisor, divend, n);
@@ -160,17 +165,20 @@ int floyd(const mpz_t N, mpz_t divisor)
 		f(y, y, N); // y = f(x)
 		f(y, y, N); // y = f(x)
 		#if VERBOSE
-		gmp_printf(" = %Zd\n", y);
+		gmp_printf(" = %Zd", y);
 		#endif
 
 		mpz_t diff;	mpz_init(diff);
 		mpz_sub(diff, x, y);
 		mpz_abs(diff, diff);
+		#if VERBOSE
+		gmp_printf(",\t|x-y| = %Zd", diff);
+		#endif
 
 		if (mpz_cmp_ui(diff, 0) == 0)
 		{
 		#if VERBOSE
-			gmp_printf("\tVisited all numbers after %d iterations on number: %Zd\n", iterations-1, N);
+			gmp_printf("...\n\tVisited all numbers after %d iterations on number: %Zd\n", iterations-1, N);
 		#endif
 			mpz_clear(x);
 			mpz_clear(y);
@@ -179,6 +187,9 @@ int floyd(const mpz_t N, mpz_t divisor)
 
 		mpz_gcd(divisor, diff, N);
 		mpz_clear(diff);
+		#if VERBOSE
+		gmp_printf(",\tdivisor = %Zd\n", divisor);
+		#endif
 	}
 
 	mpz_clear(x);
