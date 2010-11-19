@@ -87,50 +87,18 @@ int rho(mpz_t result, const mpz_t N)
 
 int brent(const mpz_t N, mpz_t divisor)
 {
-	mpz_t x;		mpz_init_set_ui(x, 2);
-
-	mpz_t tortoise, hare; mpz_init(tortoise); mpz_init(hare);
-	unsigned int power = 1, lam = 1;
-	mpz_set(tortoise, x);
-	f(hare, tortoise, N);
-#if VERBOSE
-	printf("BRENT: first loop\n");
-#endif
-	while(mpz_cmp(tortoise, hare) != 0)
+	mpz_t x, y, r, q, k, ys, g, m, tmp, i;
+	mpz_inits(x, y, r, q, k, ys, g, m, tmp, i);
+	mpz_set(y, x0); mpz_set_ui(r,1); mpz_set_uit(q,1);
+	do
 	{
-		if(power == lam)
+		mpz_set(x,y);
+		for(mpz_set_ui(i,0);mpz_cmp(r,i)>0;mpz_add_ui(i,i,1))
 		{
-			mpz_set(tortoise, hare);
-			power *= 2;
-			lam = 0;
+			f(y,y,N);
 		}
-		f(hare, hare, divisor);
-		lam++;
 	}
-	unsigned int mu = 0;
-	mpz_set(tortoise, x); mpz_set(hare, x);
-	int i;
-#if VERBOSE
-	printf("BRENT: forloop\n");
-#endif
-	for(i=0; i<lam;i++)
-	{
-		f(hare, hare, N);
-	}
-#if VERBOSE
-	printf("BRENT: second while\n");
-#endif
-	while(mpz_cmp(tortoise, hare) != 0)
-	{
-		f(tortoise, tortoise, N);
-		f(hare, hare, N);
-		mu++;
-	}
-	mpz_sub(tortoise, tortoise, hare);
-	mpz_abs(tortoise, tortoise);
-	mpz_gcd(divisor, tortoise, N);
-	mpz_clear(x);
-	return 1;
+	mpz_clears(x, y, r, q, k, ys, g, m, tmp, i);
 }
 
 int floyd(const mpz_t N, mpz_t divisor)
