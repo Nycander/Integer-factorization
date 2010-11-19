@@ -88,6 +88,9 @@ int rho(mpz_t result, const mpz_t N)
 
 		if (iterations++ == 100000)
 		{
+		#if VERBOSE
+			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
+		#endif
 			mpz_clear(divisor);
 			return 0;
 		}
