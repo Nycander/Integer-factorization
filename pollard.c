@@ -154,21 +154,24 @@ int floyd(const mpz_t N, mpz_t divisor)
 
 		#if VERBOSE
 		gmp_printf(" = %Zd,\t", x);
-		gmp_printf("y = f(%Zd)", x);
+		gmp_printf("y = f(f(%Zd))", y);
 		#endif
 
-		f(y, x, N); // y = f(x)
+		f(y, y, N); // y = f(x)
+		f(y, y, N); // y = f(x)
 		#if VERBOSE
 		gmp_printf(" = %Zd\n", y);
 		#endif
 
-		mpz_sub(x, x, y);
-		mpz_abs(x, x);
+		mpz_t diff;	mpz_init(diff);
+		mpz_sub(diff, x, y);
+		mpz_abs(diff, diff);
 
-		if (mpz_cmp_ui(x, 0) == 0)
+		if (mpz_cmp_ui(diff, 0) == 0)
 			continue;
 
-		mpz_gcd(divisor, x, N);
+		mpz_gcd(divisor, diff, N);
+		mpz_clear(diff);
 	}
 
 	mpz_clear(x);
