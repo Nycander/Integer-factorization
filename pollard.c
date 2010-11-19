@@ -83,11 +83,9 @@ int rho(mpz_t result, const mpz_t N)
 		mpz_sub(x, x, y);
 		mpz_abs(x, x);
 
-
 		mpz_gcd(divisor, x, N);
 
-
-		if (iterations++ == 150000)
+		if (iterations++ == 100000)
 		{
 			mpz_clear(divisor);
 			return 0;
