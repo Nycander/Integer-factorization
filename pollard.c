@@ -96,18 +96,68 @@ int rho(mpz_t result, const mpz_t N)
 
 int brent(const mpz_t N, mpz_t divisor)
 {
-	mpz_t x, y, r, q, k, ys, g, m, tmp, i;
-	mpz_inits(x, y, r, q, k, ys, g, m, tmp, i);
-	mpz_set(y, x0); mpz_set_ui(r,1); mpz_set_uit(q,1);
+	int iterations = 0;
+	mpz_t x, y, r, q, k, ys, g, m, tmp, tmp1, i;
+	//mpz_inits(x, y, r, q, k, ys, g, m, tmp, tmp1, i);
+	mpz_init(x); mpz_init(y); mpz_init(r); mpz_init(q); mpz_init(k); mpz_init(ys); mpz_init(g); mpz_init(m); mpz_init(tmp); mpz_init(tmp1); mpz_init(i);
+	mpz_set_ui(m,1);
+	mpz_set_ui(y, 2); mpz_set_ui(r,1); mpz_set_ui(q,1);
 	do
 	{
-		mpz_set(x,y);
-		for(mpz_set_ui(i,0);mpz_cmp(r,i)>0;mpz_add_ui(i,i,1))
+		if(iterations > POLLARD_THRESHOLD)
 		{
-			f(y,y,N);
+	#if VERBOSE
+			printf("Gave up on brent after %i iterations", iterations);
+	#endif
+			mpz_clear(x);mpz_clear(y);mpz_clear(q);mpz_clear(k);mpz_clear(ys);mpz_clear(g);mpz_clear(m);mpz_clear(tmp);mpz_clear(tmp1);mpz_clear(i);
+			return 0;
 		}
+		mpz_set(x,y);
+		for(mpz_set_ui(i,1);mpz_cmp(r,i)>0;mpz_add_ui(i,i,1))
+			f(y,y,N);
+		mpz_set_ui(k,0);
+		do
+		{
+			mpz_set(ys, y);
+			mpz_sub(tmp, r, k);
+			mpz_set(tmp, mpz_cmp(tmp,r)<0?r:tmp);
+			mpz_abs(tmp, tmp);
+			for(mpz_set_ui(i,1);mpz_cmp(tmp, i)>0; mpz_add_ui(i,i,1))
+			{
+				f(y,y,N);
+				mpz_sub(tmp1,x,y);
+				mpz_abs(tmp1,q);
+				mpz_mul(tmp1, q, tmp1);
+				mpz_mod(q, tmp1, N);
+			}
+			mpz_gcd(g, q, N);
+			mpz_add(k,k,m);
+		#if VERBOSE
+			printf("BRENT: inner while\n");
+		#endif
+		}while(mpz_cmp(k,r)>=0||mpz_cmp_ui(g,1)>0);
+		mpz_mul_ui(r,r,2);
+	#if VERBOSE
+		printf("BRENT: outer while\n");
+	#endif
+	}while(mpz_cmp_ui(g,1)>0);
+	if(mpz_cmp(g,N)==0)
+	{
+		do
+		{
+			f(ys,ys,N);
+			mpz_sub(tmp,x,ys);
+			mpz_abs(tmp, tmp);
+			mpz_gcd(g, tmp, N);
+		#if VERBOSE
+			printf("BRENT: fixwhile\n");
+		#endif
+		}while(mpz_cmp_ui(g,1)>0);
 	}
-	mpz_clears(x, y, r, q, k, ys, g, m, tmp, i);
+	mpz_set(divisor, g);
+	//mpz_clears(x, y, r, q, k, ys, g, m, tmp, tmp1, i);
+	mpz_clear(x);mpz_clear(y);mpz_clear(q);mpz_clear(k);mpz_clear(ys);mpz_clear(g);mpz_clear(m);mpz_clear(tmp);mpz_clear(tmp1);mpz_clear(i);
+	return mpz_cmp(g,N)==0?0:1;
 }
 
 int floyd(const mpz_t N, mpz_t divisor)
