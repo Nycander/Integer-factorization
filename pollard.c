@@ -91,6 +91,8 @@ int rho(mpz_t result, const mpz_t N)
 		#if VERBOSE
 			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
 		#endif
+			mpz_clear(y);
+			mpz_clear(x);
 			mpz_clear(divisor);
 			return 0;
 		}
