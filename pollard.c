@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <gmp.h>
 
 #include "settings.h"
@@ -145,11 +146,21 @@ int floyd(const mpz_t N, mpz_t divisor)
 			return 0;
 		}
 
-		f(x, x, N);
-		f(y, x, N);
-	#if VERBOSE
-		gmp_printf("x = %Zd, y = %Zd ...  ", x, y);
-	#endif
+		#if VERBOSE
+		gmp_printf("\tx = f(%Zd)", x);
+		#endif
+
+		f(x, x, N); // x = f(x)
+
+		#if VERBOSE
+		gmp_printf(" = %Zd,\t", x);
+		gmp_printf("y = f(%Zd)", x);
+		#endif
+
+		f(y, x, N); // y = f(x)
+		#if VERBOSE
+		gmp_printf(" = %Zd\n", y);
+		#endif
 
 		mpz_sub(x, x, y);
 		mpz_abs(x, x);
@@ -171,8 +182,4 @@ void f(mpz_t result, mpz_t x, const mpz_t N)
 	mpz_mul(result, result, result);
 	mpz_add_ui(result, result, 1);
 	mpz_mod(result, result, N);
-
-#if VERBOSE
-	gmp_printf("f(%Zd) = %Zd\n", x, result);
-#endif
 }
