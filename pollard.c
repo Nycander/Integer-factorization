@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <gmp.h>
 
+#include "settings.h"
 #include "factor_list.h"
 #include "pollard.h"
 

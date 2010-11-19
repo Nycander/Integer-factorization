@@ -3,9 +3,7 @@
 #include <gmp.h>
 #include <limits.h>
 
-#define VERBOSE 1
-#define USE_TRIAL_DIVISION 0
-
+#include "settings.h"
 #include "factor_list.h"
 #include "trialdivision.h"
 #include "pollard.h"
