@@ -80,9 +80,15 @@ int rho(mpz_t result, const mpz_t N)
 	{
 		f(x, x, N);
 		f(y, x, N);
+	#if VERBOSE
+		gmp_printf("x = %Zd, y = %Zd ...  ", x, y);
+	#endif
 
 		mpz_sub(x, x, y);
 		mpz_abs(x, x);
+
+		if (mpz_cmp_ui(x, 0) == 0)
+			continue;
 
 		mpz_gcd(divisor, x, N);
 
@@ -91,18 +97,14 @@ int rho(mpz_t result, const mpz_t N)
 		#if VERBOSE
 			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
 		#endif
-			mpz_clear(y);
-			mpz_clear(x);
-			mpz_clear(divisor);
+			mpz_clears(x, y, divisor);
 			return 0;
 		}
 	}
 
 	// Great success
 	mpz_set(result, divisor);
-	mpz_clear(divisor);
-	mpz_clear(y);
-	mpz_clear(x);
+	mpz_clears(x, y, divisor);
 	return 1;
 }
 
