@@ -78,25 +78,29 @@ int rho(mpz_t result, const mpz_t N)
 
 	while(mpz_cmp_ui(divisor, 1) == 0)
 	{
+	
+
 		if (iterations++ == POLLARD_THRESHOLD)
 		{
 			#if VERBOSE
 			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
 			#endif
+			mpz_clear(x);
+			mpz_clear(y);
 			mpz_clear(divisor);
 			return 0;
 		}
-		if(!brent(x, N, divisor))
+		if(brent(x, N, divisor))
 		{
-			return 0;
+			break;
 		}
 	}
 
 	// Great success
 	mpz_set(result, divisor);
-	mpz_clear(divisor);
-	mpz_clear(y);
 	mpz_clear(x);
+	mpz_clear(y);
+	mpz_clear(divisor);
 	return 1;
 }
 
@@ -140,26 +144,20 @@ int floyd(mpz_t x, mpz_t y, mpz_t N, mpz_t divisor)
 {
 	f(x, x, N);
 	f(y, x, N);
+#if VERBOSE
+	gmp_printf("x = %Zd, y = %Zd ...  ", x, y);
+#endif
 
 	mpz_sub(x, x, y);
 	mpz_abs(x, x);
-
-	mpz_gcd(divisor, x, N);
-
-	/*if (iterations++ == POLLARD_THRESHOLD)
-	{
-	#if VERBOSE
-		gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
-	#endif
-		mpz_clear(divisor);
+	if (mpz_cmp_ui(x, 0) == 0)
 		return 0;
-	}*/
+	mpz_gcd(divisor, x, N);
 	return 1;
 }
 void f(mpz_t result, mpz_t x, const mpz_t N)
 {
-	mpz_clear(result);
-	mpz_init_set(result, x);
+	mpz_set(result, x);
 	mpz_mul(result, result, result);
 	mpz_add_ui(result, result, 1);
 	mpz_mod(result, result, N);

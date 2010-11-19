@@ -1,3 +1,4 @@
+/*
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
@@ -59,3 +60,4 @@ int main(int argc, char * argv[])
 void factor(const mpz_t n){
 	//FUN STUFF
 }
+*/
