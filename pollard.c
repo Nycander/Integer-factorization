@@ -86,7 +86,7 @@ int rho(mpz_t result, const mpz_t N)
 
 		mpz_gcd(divisor, x, N);
 
-		if (iterations++ == 100000)
+		if (iterations++ == POLLARD_THRESHOLD)
 		{
 		#if VERBOSE
 			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
