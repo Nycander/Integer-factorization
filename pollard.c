@@ -111,6 +111,9 @@ int brent(mpz_t x, const mpz_t N, mpz_t divisor)
 	unsigned int power = 1, lam = 1;
 	mpz_set(tortoise, x);
 	f(hare, tortoise, N);
+#if VERBOSE
+	printf("BRENT: first loop\n");
+#endif
 	while(mpz_cmp(tortoise, hare) != 0)
 	{
 		if(power == lam)
@@ -125,10 +128,16 @@ int brent(mpz_t x, const mpz_t N, mpz_t divisor)
 	unsigned int mu = 0;
 	mpz_set(tortoise, x); mpz_set(hare, x);
 	int i;
+#if VERBOSE
+	printf("BRENT: forloop\n");
+#endif
 	for(i=0; i<lam;i++)
 	{
 		f(hare, hare, N);
 	}
+#if VERBOSE
+	printf("BRENT: second while\n");
+#endif
 	while(mpz_cmp(tortoise, hare) != 0)
 	{
 		f(tortoise, tortoise, N);

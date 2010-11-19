@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H_
 #define SETTINGS_H_
 
-#define VERBOSE 0
+#define VERBOSE 1
 #define USE_TRIAL_DIVISION 0
 #define POLLARD_THRESHOLD 100000
 
