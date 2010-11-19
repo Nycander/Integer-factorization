@@ -168,7 +168,14 @@ int floyd(const mpz_t N, mpz_t divisor)
 		mpz_abs(diff, diff);
 
 		if (mpz_cmp_ui(diff, 0) == 0)
-			continue;
+		{
+		#if VERBOSE
+			gmp_printf("\tVisited all numbers after %d iterations on number: %Zd\n", iterations-1, N);
+		#endif
+			mpz_clear(x);
+			mpz_clear(y);
+			return 0;
+		}
 
 		mpz_gcd(divisor, diff, N);
 		mpz_clear(diff);
