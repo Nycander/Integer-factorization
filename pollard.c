@@ -72,7 +72,11 @@ int rho(mpz_t result, const mpz_t N)
 
 	mpz_t divisor;	mpz_init_set_ui(divisor, 1);
 
+#if USE_BRENT_INSTEAD_OF_FLOYD
+	if(! brent(N, divisor))
+#else
 	if(! floyd(N, divisor))
+#endif
 		return 0;
 
 	// Great success
@@ -124,23 +128,23 @@ int floyd(const mpz_t N, mpz_t divisor)
 {
 	mpz_t x;		mpz_init_set_ui(x, 2);
 	mpz_t y;		mpz_init_set_ui(y, 2);
-
 	unsigned int iterations = 0;
 
 	while(mpz_cmp_ui(divisor, 1) == 0)
 	{
-		if (iterations++ == POLLARD_THRESHOLD)
+		if (++iterations == POLLARD_THRESHOLD)
 		{
-			#if VERBOSE
+		#if VERBOSE
 			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
-			#endif
+		#endif
+			mpz_clear(x);
+			mpz_clear(y);
 			mpz_clear(divisor);
 			return 0;
 		}
-		
+
 		f(x, x, N);
 		f(y, x, N);
-
 	#if VERBOSE
 		gmp_printf("x = %Zd, y = %Zd ...  ", x, y);
 	#endif
@@ -149,9 +153,7 @@ int floyd(const mpz_t N, mpz_t divisor)
 		mpz_abs(x, x);
 
 		if (mpz_cmp_ui(x, 0) == 0)
-		{
 			continue;
-		}
 
 		mpz_gcd(divisor, x, N);
 	}
