@@ -6,5 +6,6 @@
 
 int pollard(factor_list ** f, const mpz_t n);
 int rho(mpz_t res, const mpz_t N);
+void f(mpz_t result, mpz_t x, const mpz_t N);
 
 #endif

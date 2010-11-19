@@ -11,12 +11,13 @@
  */
 int pollard(factor_list ** f, const mpz_t n)
 {
+	// Numbers below 2 should not be factored.
 	if (mpz_cmp_ui(n, 1) <= 0)
 	{
 		return 1;
 	}
 
-	// If we have a prime number
+	// Base case: we have a prime number
 	if (mpz_probab_prime_p(n, 10))
 	{
 		mpz_t * v = malloc(sizeof(mpz_t));
@@ -68,30 +69,23 @@ int rho(mpz_t result, const mpz_t N)
 		return 1;
 	}
 
-	gmp_randstate_t rand_state;
-	gmp_randinit_default(rand_state);
-
-	mpz_t divisor;
-	mpz_init_set_ui(divisor, 1);
+	mpz_t x;		mpz_init_set_ui(x, 2);
+	mpz_t y;		mpz_init_set_ui(y, 2);
+	mpz_t divisor;	mpz_init_set_ui(divisor, 1);
 
 	unsigned int iterations = 0;
 
-	while(mpz_cmp_ui(divisor, 1) == 0 || mpz_cmp(divisor, N) == 0)
+	while(mpz_cmp_ui(divisor, 1) == 0)
 	{
-		mpz_t x; 		mpz_init(x);
-		mpz_urandomm(x, rand_state, N);
-
-		mpz_t y; 		mpz_init(y);
-		mpz_urandomm(y, rand_state, N);
+		f(x, x, N);
+		f(y, x, N);
 
 		mpz_sub(x, x, y);
 		mpz_abs(x, x);
 
-		mpz_clear(y);
 
 		mpz_gcd(divisor, x, N);
 
-		mpz_clear(x);
 
 		if (iterations++ == 150000)
 		{
@@ -103,6 +97,16 @@ int rho(mpz_t result, const mpz_t N)
 	// Great success
 	mpz_set(result, divisor);
 	mpz_clear(divisor);
-	gmp_randclear(rand_state);
+	mpz_clear(y);
+	mpz_clear(x);
 	return 1;
+}
+
+void f(mpz_t result, mpz_t x, const mpz_t N)
+{
+	mpz_clear(result);
+	mpz_init_set(result, x);
+	mpz_mul(result, result, result);
+	mpz_add_ui(result, result, 1);
+	mpz_mod(result, result, N);
 }
