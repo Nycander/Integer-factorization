@@ -108,8 +108,7 @@ int rho(mpz_t result, const mpz_t N)
 
 void f(mpz_t result, mpz_t x, const mpz_t N)
 {
-	mpz_clear(result);
-	mpz_init_set(result, x);
+	mpz_set(result, x);
 	mpz_mul(result, result, result);
 	mpz_add_ui(result, result, 1);
 	mpz_mod(result, result, N);
