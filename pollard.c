@@ -94,70 +94,120 @@ int rho(mpz_t result, const mpz_t N)
 	return 1;
 }
 
-int brent(const mpz_t N, mpz_t divisor)
+int brent_o(const mpz_t N, mpz_t divisor)
 {
-	int iterations = 0;
-	mpz_t x, y, r, q, k, ys, g, m, tmp, tmp1, i;
-	//mpz_inits(x, y, r, q, k, ys, g, m, tmp, tmp1, i);
-	mpz_init(x); mpz_init(y); mpz_init(r); mpz_init(q); mpz_init(k); mpz_init(ys); mpz_init(g); mpz_init(m); mpz_init(tmp); mpz_init(tmp1); mpz_init(i);
-	mpz_set_ui(m,1);
-	mpz_set_ui(y, 2); mpz_set_ui(r,1); mpz_set_ui(q,1);
-	do
+	unsigned int x0 = 2;
+	mpz_t x, y, r, q, i, k, ys, tmp, m;
+	mpz_init(x);
+	mpz_init_set_ui(y, x0);
+	mpz_init_set_ui(r, 1);
+	mpz_init_set_ui(q, 1);
+	mpz_init(i);
+	mpz_init(k);
+	mpz_init(ys);
+	mpz_init(tmp);
+	mpz_init_set_ui(m,2);
+	mpz_init(i);
+	while(mpz_cmp_ui(divisor,1)==0)
 	{
-		if(iterations > POLLARD_THRESHOLD)
-		{
-	#if VERBOSE
-			printf("Gave up on brent after %i iterations", iterations);
-	#endif
-			mpz_clear(x);mpz_clear(y);mpz_clear(q);mpz_clear(k);mpz_clear(ys);mpz_clear(g);mpz_clear(m);mpz_clear(tmp);mpz_clear(tmp1);mpz_clear(i);
-			return 0;
-		}
-		mpz_set(x,y);
-		for(mpz_set_ui(i,1);mpz_cmp(r,i)>0;mpz_add_ui(i,i,1))
+		mpz_set(x, y);
+		for(mpz_set_ui(i,1);mpz_cmp(r,i)>=0;mpz_add_ui(i,i,1))
 			f(y,y,N);
 		mpz_set_ui(k,0);
-		do
+		while(mpz_cmp(k,r)>=0||mpz_cmp_ui(divisor,1)==0)
 		{
-			mpz_set(ys, y);
-			mpz_sub(tmp, r, k);
-			mpz_set(tmp, mpz_cmp(tmp,r)<0?r:tmp);
-			mpz_abs(tmp, tmp);
-			for(mpz_set_ui(i,1);mpz_cmp(tmp, i)>0; mpz_add_ui(i,i,1))
+			mpz_set(ys,y);
+			mpz_sub(divisor, r, k);
+			mpz_set(divisor,mpz_cmp(m, divisor)<0?m:divisor);
+			for(mpz_set_ui(i,1);mpz_cmp(divisor, i)>=0;mpz_add_ui(i,i,1))
 			{
 				f(y,y,N);
-				mpz_sub(tmp1,x,y);
-				mpz_abs(tmp1,q);
-				mpz_mul(tmp1, q, tmp1);
-				mpz_mod(q, tmp1, N);
+				mpz_sub(tmp,x,y);
+				mpz_abs(tmp, tmp);
+				mpz_mul(divisor, divisor, tmp);
 			}
-			mpz_gcd(g, q, N);
+			mpz_gcd(divisor, divisor, N);
 			mpz_add(k,k,m);
-		#if VERBOSE
-			printf("BRENT: inner while\n");
-		#endif
-		}while(mpz_cmp(k,r)>=0||mpz_cmp_ui(g,1)>0);
+		}
 		mpz_mul_ui(r,r,2);
-	#if VERBOSE
-		printf("BRENT: outer while\n");
-	#endif
-	}while(mpz_cmp_ui(g,1)>0);
-	if(mpz_cmp(g,N)==0)
+	}
+	if(mpz_cmp(divisor,N)==0)
 	{
-		do
+		while(mpz_cmp_ui(divisor,1)==0)
 		{
 			f(ys,ys,N);
-			mpz_sub(tmp,x,ys);
-			mpz_abs(tmp, tmp);
-			mpz_gcd(g, tmp, N);
-		#if VERBOSE
-			printf("BRENT: fixwhile\n");
-		#endif
-		}while(mpz_cmp_ui(g,1)>0);
+			mpz_sub(divisor,x,ys);
+			mpz_abs(divisor,divisor);
+			mpz_gcd(divisor, divisor, N);
+		};
 	}
-	mpz_set(divisor, g);
-	//mpz_clears(x, y, r, q, k, ys, g, m, tmp, tmp1, i);
-	mpz_clear(x);mpz_clear(y);mpz_clear(q);mpz_clear(k);mpz_clear(ys);mpz_clear(g);mpz_clear(m);mpz_clear(tmp);mpz_clear(tmp1);mpz_clear(i);
-	return mpz_cmp(g,N)==0?0:1;
+	unsigned int ret = mpz_cmp(divisor,N)==0?0:1;
+	mpz_clear(x);
+	mpz_clear(m);
+	mpz_clear(y);
+	mpz_clear(r);
+	mpz_clear(q);
+	mpz_clear(i);
+	mpz_clear(k);
+	mpz_clear(ys);
+	mpz_clear(tmp);
+	return ret;
+}
+int brentt(const mpz_t N, mpz_t divisor)
+{
+	mpz_t x; mpz_init_set_ui(x, 2);
+	while(1){
+		f(x,x,N);
+		gmp_printf("%Zd, ", x);
+	}
+}
+int brent(const mpz_t N, mpz_t divisor)
+{
+	unsigned int iterations = 0;
+	unsigned int x0 = 2;
+	mpz_t power;	mpz_init_set_ui(power, 1);
+	mpz_t lambda;	mpz_init_set_ui(lambda, 1);
+	mpz_t tortoise;	mpz_init_set_ui(tortoise, x0);
+	mpz_t hare;		mpz_init(hare); f(hare, tortoise, N);
+	mpz_t diff;		mpz_init(diff);
+	int ret = 1;
+
+	while(mpz_cmp_ui(divisor,1)==0)
+	{
+		if(iterations++>POLLARD_THRESHOLD)
+		{
+		#if VERBOSE
+			gmp_printf("Gave up on %Zd after %i iterations.\n",N,iterations);
+		#endif
+			ret = 0;
+			break;
+		}
+		if(mpz_cmp(power, lambda)==0)
+		{
+			mpz_set(tortoise, hare);
+			mpz_mul_ui(power, power, 2);
+			mpz_set_ui(lambda, 0);
+		}
+		f(hare, hare, N);
+		mpz_add_ui(lambda, lambda, 1);
+
+		mpz_sub(diff, tortoise, hare);
+		mpz_abs(diff, diff);
+		/*if(mpz_cmp_ui(diff,0)==0)
+		{
+			gmp_printf("Visited all values in the cycle\n");
+			ret = 0;
+			break;
+		}*/
+		mpz_gcd(divisor,diff,N);
+
+	}
+	mpz_clear(diff);
+	mpz_clear(power);
+	mpz_clear(lambda);
+	mpz_clear(tortoise);
+	mpz_clear(hare);
+	return mpz_cmp(divisor, N)==0?0:ret;
 }
 
 int floyd(const mpz_t N, mpz_t divisor)
