@@ -7,11 +7,6 @@
 #include "primes.h"
 #include "factor_list.h"
 
-#define VERBOSE 1
-
-void quadraticSieve(const mpz_t num);
-factor_list * sieving(const mpz_t num);
-
 gmp_randstate_t rand_state;
 int current_input_number = 0;
 int maxNumberOfSieving = 60;
