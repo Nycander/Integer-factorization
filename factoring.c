@@ -37,8 +37,15 @@ void factor(mpz_t n)
 
 	if (mpz_sizeinbase(n, 2) >= USE_QUADRATIC_SIEVE_BIT_THRESHOLD)
 	{
-		quadratic_sieve(&factors, n);
-		printf("fail\n\n");
+		if (quadratic_sieve(&factors, n))
+		{
+			printf("fail\n\n");
+		}
+		else
+		{
+			printf("fail\n");
+			printf("\n");
+		}
 		/*
 		if (quadratic_sieve(&factors, n))
 		{
