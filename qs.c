@@ -9,7 +9,7 @@
 #include "primes.h"
 
 int maxNumberOfSieving = 60;
-int smoothnessBound = 90;
+int smoothnessBound = 500;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
