@@ -8,6 +8,7 @@
 #include "trialdivision.h"
 #include "pollard.h"
 #include "qs.h"
+#include "primes.h"
 
 int current_input_number = 0;
 
@@ -22,7 +23,7 @@ void factor(mpz_t n)
 	int trivialPrimesCount = 0;
 	while(1)
 	{
-		mpz_t * newPointer = trial_division(&factors, n);
+		mpz_t * newPointer = trial_division(&factors, primes, primes_count, n);
 		if (newPointer == 0)
 			break;
 

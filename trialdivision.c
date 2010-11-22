@@ -3,9 +3,8 @@
 
 #include "trialdivision.h"
 #include "factor_list.h"
-#include "primes.h" // Should contain the array primes[]
 
-mpz_t * trial_division(factor_list ** f, const mpz_t N)
+mpz_t * trial_division(factor_list ** f, int * primes, int primes_count, const mpz_t N)
 {
 	mpz_t * n = malloc(sizeof(mpz_t));
 	mpz_init_set(*n, N);

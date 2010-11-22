@@ -126,12 +126,12 @@ int brent(const mpz_t N, mpz_t divisor)
 
 		mpz_sub(diff, tortoise, hare);
 		mpz_abs(diff, diff);
-		/*if(mpz_cmp_ui(diff,0)==0)
+		if(mpz_cmp_ui(diff,0)==0)
 		{
 			gmp_printf("Visited all values in the cycle\n");
 			ret = 0;
 			break;
-		}*/
+		}
 		mpz_gcd(divisor,diff,N);
 
 	}
