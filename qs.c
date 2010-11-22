@@ -9,17 +9,13 @@
 
 #define VERBOSE 1
 
-void quadraticSieve(const mpz_t num);
+void quadratic_sieve(const mpz_t num);
 factor_list * sieving(const mpz_t num);
 
-gmp_randstate_t rand_state;
-int current_input_number = 0;
 int maxNumberOfSieving = 60;
 int smoothnessBound = 90;
 
-
-
-void quadraticSieve(const mpz_t num){
+void quadratic_sieve(const mpz_t num){
 	//FUN STUFF
 }
 
@@ -33,12 +29,12 @@ factor_list * sieving(const mpz_t num){
 
 
 	mpz_t numbers[maxNumberOfSieving], copy[maxNumberOfSieving];
-	//Init
+	// Init
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
 		mpz_inits(numbers[i], copy[i]);
 	}
 
-	//Generate numbers
+	// Generate numbers
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++, mpz_add_ui(sqrtN, sqrtN, 1){
 		mpz_mul_si(tmp, sqrtN, 2);
 		mpz_sub(numbers[i],tmp,num);
@@ -46,8 +42,8 @@ factor_list * sieving(const mpz_t num){
 	}
 
 
-	//Compute to find good numbers
-	//Find relevant primes to div
+	// Compute to find good numbers
+	// Find relevant primes to div
 	int good[smoothnessBound], nrGoodNums = 1;
 	int good[0] = 2;
 	for(unsigned int i = 1; i < smoothnessBound; i++){
@@ -59,7 +55,7 @@ factor_list * sieving(const mpz_t num){
 		}
 	}
 
-	//Find the good numbers
+	// Find the good numbers
 	for(unsigned int i = 0; i < nrGoodNums; i++){
 		for(unsigned int j = 0; j < maxNumberOfSieving; j++){
 			if(mpz_divisible_ui_p(numbers[j], good[i]) != 0){
@@ -68,7 +64,7 @@ factor_list * sieving(const mpz_t num){
 		}
 	}
 
-	//Select good ones to return
+	// Select good ones to return
 	factor_list * ret = malloc(sizeof(factor_list));
 	ret->value = NULL;
 	ret->next = NULL;
@@ -81,7 +77,7 @@ factor_list * sieving(const mpz_t num){
 		}
 	}
 
-	//Clear mpz
+	// Clear mpz
 	mpz_clears(sqrtN, tmp, mod);
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
 		mpz_clears(numbers[i], copy[i]);
