@@ -9,7 +9,7 @@
 #include "primes.h"
 
 int maxNumberOfSieving = 60;
-int smoothnessBound = 500;
+int smoothnessBound = 220;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
@@ -57,7 +57,7 @@ factor_list * sieving(const mpz_t num){
 		good_primes[0] = 2;
 	int good_primes_count = 1;
 
-	for(unsigned int i = 1; i < smoothnessBound; i++)
+	for(unsigned int i = 1; i < smoothnessBound && mpz_cmp_ui(num, primes[i]) >= 0; i++)
 	{
 		mpz_set_ui (mod, primes[i]);
 		mpz_powm_ui (tmp, num, (primes[i]-1)/2, mod);
