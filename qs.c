@@ -33,6 +33,7 @@ factor_list * sieving(const mpz_t num){
 	mpz_t numbers[maxNumberOfSieving];
 	mpz_t copy[maxNumberOfSieving];
 
+
 	// Generate numbers
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
 	{
@@ -46,13 +47,14 @@ factor_list * sieving(const mpz_t num){
 		mpz_sub(copy[i],tmp,num);
 	}
 
+
 	// Time to find good numbers! :D
 
 	// Find relevant primes to divide the numbers with
 	int good[smoothnessBound];
 		good[0] = 2;
 	int nrGoodNums = 1;
-	
+
 	for(unsigned int i = 1; i < smoothnessBound; i++)
 	{
 		mpz_set_ui (mod, primes[i]);
@@ -65,10 +67,11 @@ factor_list * sieving(const mpz_t num){
 		}
 	}
 
+
 	// Find the good numbers
 	for(unsigned int i = 0; i < nrGoodNums; i++){
 		for(unsigned int j = 0; j < maxNumberOfSieving; j++){
-			if(mpz_divisible_ui_p(numbers[j], good[i]) != 0){
+			if(mpz_divisible_ui_p(numbers[j], good[i])){
 				mpz_divexact_ui(numbers[j], numbers[j], good[i]);
 			}
 		}
