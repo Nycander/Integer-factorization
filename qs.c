@@ -9,7 +9,7 @@
 #include "primes.h"
 
 int maxNumberOfSieving = 60;
-int smoothnessBound = 220;
+int smoothnessBound = 500;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
@@ -69,10 +69,10 @@ factor_list * sieving(const mpz_t num){
 	}
 
 	// Initialize bit matrix
-	char bit_matrix[maxNumberOfSieving][maxNumberOfSieving];
+	char bit_matrix[maxNumberOfSieving][good_primes_count];
 	for(int i = 0; i < maxNumberOfSieving; i++)
 	{
-		for(int j = 0; j < maxNumberOfSieving; j++)
+		for(int j = 0; j < good_primes_count; j++)
 		{
 			bit_matrix[i][j] = 0;
 		}
