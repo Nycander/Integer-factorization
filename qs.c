@@ -69,7 +69,15 @@ factor_list * sieving(const mpz_t num){
 		}
 	}
 
+	// Initialize bit matrix
 	char bit_matrix[maxNumberOfSieving][maxNumberOfSieving];
+	for(int i = 0; i < maxNumberOfSieving; i++)
+	{
+		for(int j = 0; j < maxNumberOfSieving; j++)
+		{
+			bit_matrix[i][j] = 0;
+		}
+	}
 
 	// Find the good prime numbers
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
