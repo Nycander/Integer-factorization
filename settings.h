@@ -4,7 +4,7 @@
 // Global settings
 #define VERBOSE 0
 #define USE_TRIAL_DIVISION 1
-#define USE_QUADRATIC_SIEVE_DIGIT_THRESHOLD 0
+#define USE_QUADRATIC_SIEVE_DIGIT_THRESHOLD 100
 
 // Pollard's Rho settings
 #define POLLARD_THRESHOLD 200000
