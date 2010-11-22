@@ -28,14 +28,15 @@ void quadraticSieve(const mpz_t num){
 */
 factor_list * sieving(const mpz_t num){
 	mpz_t sqrtN, tmp, mod;
-	mpz_inits(sqrtN, tmp, mod);
+	mpz_init(sqrtN), mpz_init(tmp), mpz_init(mod);
 	mpz_sqrt(sqrtN, num);
 
 
 	mpz_t numbers[maxNumberOfSieving], copy[maxNumberOfSieving];
 	//Init
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
-		mpz_inits(numbers[i], copy[i]);
+		mpz_init(numbers[i]);
+		mpz_init(copy[i]);
 	}
 
 	//Generate numbers
@@ -82,9 +83,10 @@ factor_list * sieving(const mpz_t num){
 	}
 
 	//Clear mpz
-	mpz_clears(sqrtN, tmp, mod);
+	mpz_clear(sqrtN), mpz_clear(tmp), mpz_clear(mod);
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
-		mpz_clears(numbers[i], copy[i]);
+		mpz_clear(numbers[i]);
+		mpz_clear(copy[i]);
 	}
 
 	return ret;
