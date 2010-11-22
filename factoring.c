@@ -43,7 +43,7 @@ void factor(mpz_t n)
 		}
 		else
 		{
-			printf("fail\n");
+			printf("fail\n\n");
 		}
 	}
 	else
