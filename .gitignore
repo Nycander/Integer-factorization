@@ -2,3 +2,4 @@ factoringZ.exe
 
 *.exe
 /.kattisrc
+*.sublime-project
