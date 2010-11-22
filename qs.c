@@ -15,13 +15,20 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
 	factor_list * list = sieving(num);
 
+	mpz_t sum; mpz_init(sum);
+	while(*(list->value) != NULL)
+	{
+		mpz_add(sum, sum, *(list->value));
+		list = list->next;
+	}
+
 	// TODO: Factor the numbers
 
 	// TODO: For each factor: % mod 1  and put in array
 
 	// TODO: The array assembles a matrix
 
-	return 0;
+	return sum;
 }
 
 /*
