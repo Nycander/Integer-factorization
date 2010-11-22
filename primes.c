@@ -1,6 +1,6 @@
 #include "primes.h"
 
-primes_count = 500;
+int primes_count = 500;
 
 primes[] = {
 				2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
