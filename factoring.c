@@ -3,8 +3,7 @@
 #include <gmp.h>
 #include <limits.h>
 
-#define VERBOSE 0
-
+#include "settings.h"
 #include "factor_list.h"
 #include "trialdivision.h"
 #include "pollard.h"
@@ -17,18 +16,21 @@ void factor(mpz_t n)
 	factors->value = NULL;
 	factors->next = NULL;
 
+#if USE_TRIAL_DIVISION
 	// Exhaust trivial primes with trial division
-	while(2)
+	int trivialPrimesCount = 0;
+	while(1)
 	{
 		mpz_t * newPointer = trial_division(&factors, n);
 		if (newPointer == 0)
 			break;
 
 		n = *newPointer;
+		trivialPrimesCount++;
 	}
-
 #if VERBOSE
-	gmp_printf("\tAfter exhausting trivial primes: %Zd\n", n);
+	gmp_printf("\tExhausted trivial primes after %d iterations; n = %Zd\n", trivialPrimesCount, n);
+#endif
 #endif
 
 	if (pollard(&factors, n))
