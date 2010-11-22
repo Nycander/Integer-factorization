@@ -79,6 +79,9 @@ factor_list * sieving(const mpz_t num){
 	}
 
 	// Find the good prime numbers
+	factor_list * ret = malloc(sizeof(factor_list));
+	ret->value = NULL;
+	ret->next = NULL;
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
 	{
 		// Let the trial division commence!
@@ -91,6 +94,10 @@ factor_list * sieving(const mpz_t num){
 
 				if (mpz_cmp_ui(numbers[i], 1) == 0)
 				{
+					mpz_t * goodPrimeNumber = malloc(sizeof(mpz_t));
+					mpz_init_set(*goodPrimeNumber, copy[i]);
+
+					factor_list_add(&ret, goodPrimeNumber);
 					break;
 				}
 				else
@@ -100,22 +107,7 @@ factor_list * sieving(const mpz_t num){
 			}
 		}
 	}
-
-	// Select good number for return
-	factor_list * ret = malloc(sizeof(factor_list));
-	ret->value = NULL;
-	ret->next = NULL;
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
-	{
-		if(mpz_cmp_ui(numbers[i], 1) == 0)
-		{
-			mpz_t * goodPrimeNumber = malloc(sizeof(mpz_t));
-			mpz_init_set(*goodPrimeNumber, copy[i]);
-
-			factor_list_add(&ret, goodPrimeNumber);
-		}
-	}
-
+	
 	//Clear mpz
 	mpz_clear(sqrtN), mpz_clear(tmp), mpz_clear(mod);
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
