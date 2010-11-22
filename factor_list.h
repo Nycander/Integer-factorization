@@ -10,5 +10,6 @@ typedef struct factor_list
 } factor_list;
 
 factor_list * factor_list_add(factor_list ** f, mpz_t * v);
+void factor_list_print(factor_list * f);
 
 #endif

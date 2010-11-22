@@ -6,8 +6,7 @@
 
 #include "primes.h"
 #include "factor_list.h"
-
-#define VERBOSE 1
+#include "settings.h"
 
 void quadratic_sieve(const mpz_t num);
 factor_list * sieving(const mpz_t num);
@@ -15,8 +14,10 @@ factor_list * sieving(const mpz_t num);
 int maxNumberOfSieving = 60;
 int smoothnessBound = 90;
 
-void quadratic_sieve(const mpz_t num){
-	//FUN STUFF
+void quadratic_sieve(const mpz_t num)
+{
+	/*factor_list * list =*/ sieving(num);
+	// TODO: Factor numbers % mod 1 in matrix
 }
 
 /*
@@ -24,18 +25,20 @@ void quadratic_sieve(const mpz_t num){
 */
 factor_list * sieving(const mpz_t num){
 	mpz_t sqrtN, tmp, mod;
-	mpz_inits(sqrtN, tmp, mod);
+	mpz_init(sqrtN), mpz_init(tmp), mpz_init(mod);
 	mpz_sqrt(sqrtN, num);
 
 
 	mpz_t numbers[maxNumberOfSieving], copy[maxNumberOfSieving];
 	// Init
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
-		mpz_inits(numbers[i], copy[i]);
+		mpz_init(numbers[i]);
+		mpz_init(copy[i]);
 	}
 
 	// Generate numbers
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++, mpz_add_ui(sqrtN, sqrtN, 1){
+	for(unsigned int i = 0; i < maxNumberOfSieving; i++, mpz_add_ui(sqrtN, sqrtN, 1))
+	{
 		mpz_mul_si(tmp, sqrtN, 2);
 		mpz_sub(numbers[i],tmp,num);
 		mpz_sub(copy[i],tmp,num);
@@ -44,12 +47,16 @@ factor_list * sieving(const mpz_t num){
 
 	// Compute to find good numbers
 	// Find relevant primes to div
-	int good[smoothnessBound], nrGoodNums = 1;
-	int good[0] = 2;
-	for(unsigned int i = 1; i < smoothnessBound; i++){
+	int good[smoothnessBound];
+	int nrGoodNums = 1;
+	good[0] = 2;
+	for(unsigned int i = 1; i < smoothnessBound; i++)
+	{
 		mpz_set_ui (mod, primes[i]);
 		mpz_powm_ui (tmp, num, (primes[i]-1)/2, mod);
-		if(tmp == 1){
+
+		if(mpz_cmp_ui(tmp, 1) == 0)
+		{
 			good[nrGoodNums] = primes[i];
 			nrGoodNums++;
 		}
@@ -68,8 +75,10 @@ factor_list * sieving(const mpz_t num){
 	factor_list * ret = malloc(sizeof(factor_list));
 	ret->value = NULL;
 	ret->next = NULL;
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
-		if(numbers[i] == 1){
+	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
+	{
+		if(mpz_cmp_ui(numbers[i], 1) == 0)
+		{
 			mpz_t * goodNum = malloc(sizeof(mpz_t));
 			mpz_init_set(*goodNum, copy[i]);
 
@@ -77,10 +86,11 @@ factor_list * sieving(const mpz_t num){
 		}
 	}
 
-	// Clear mpz
-	mpz_clears(sqrtN, tmp, mod);
+	//Clear mpz
+	mpz_clear(sqrtN), mpz_clear(tmp), mpz_clear(mod);
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
-		mpz_clears(numbers[i], copy[i]);
+		mpz_clear(numbers[i]);
+		mpz_clear(copy[i]);
 	}
 
 	return ret;
