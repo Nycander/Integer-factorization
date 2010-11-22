@@ -1,7 +1,7 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
+
 #include "factor_list.h"
 
 factor_list * factor_list_add(factor_list ** f, mpz_t * v)
