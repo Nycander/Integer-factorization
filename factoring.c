@@ -39,23 +39,12 @@ void factor(mpz_t n)
 	{
 		if (quadratic_sieve(&factors, n))
 		{
-			printf("fail\n\n");
-		}
-		else
-		{
-			printf("fail\n");
-			printf("\n");
-		}
-		/*
-		if (quadratic_sieve(&factors, n))
-		{
 			factor_list_print(factors);
 		}
 		else
 		{
 			printf("fail\n\n");
 		}
-		*/
 	}
 	else
 	{
