@@ -10,8 +10,14 @@ int smoothnessBound = 90;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
-	/*factor_list * list =*/ sieving(num);
-	// TODO: Factor numbers % mod 1 in matrix
+	factor_list * list = sieving(num);
+
+	// TODO: Factor the numbers
+
+	// TODO: For each factor: % mod 1  and put in array
+
+	// TODO: The array assembles a matrix
+
 	return 0;
 }
 
@@ -24,27 +30,29 @@ factor_list * sieving(const mpz_t num){
 	mpz_sqrt(sqrtN, num);
 
 
-	mpz_t numbers[maxNumberOfSieving], copy[maxNumberOfSieving];
-	// Init
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++){
-		mpz_init(numbers[i]);
-		mpz_init(copy[i]);
-	}
+	mpz_t numbers[maxNumberOfSieving];
+	mpz_t copy[maxNumberOfSieving];
 
 	// Generate numbers
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++, mpz_add_ui(sqrtN, sqrtN, 1))
+	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
 	{
-		mpz_mul_si(tmp, sqrtN, 2);
+		mpz_add_ui(sqrtN, sqrtN, 1);
+		mpz_mul(tmp, sqrtN, sqrtN);
+
+		mpz_init(numbers[i]);
 		mpz_sub(numbers[i],tmp,num);
+
+		mpz_init(copy[i]);
 		mpz_sub(copy[i],tmp,num);
 	}
 
+	// Time to find good numbers! :D
 
-	// Compute to find good numbers
-	// Find relevant primes to div
+	// Find relevant primes to divide the numbers with
 	int good[smoothnessBound];
+		good[0] = 2;
 	int nrGoodNums = 1;
-	good[0] = 2;
+	
 	for(unsigned int i = 1; i < smoothnessBound; i++)
 	{
 		mpz_set_ui (mod, primes[i]);
