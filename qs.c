@@ -50,12 +50,12 @@ factor_list * sieving(const mpz_t num){
 	}
 
 
-	// Time to find good numbers! :D
+	// Time to find good prime numbers! :D
 
 	// Find relevant primes to divide the numbers with
-	int good[smoothnessBound];
-		good[0] = 2;
-	int nrGoodNums = 1;
+	int good_primes[smoothnessBound];
+		good_primes[0] = 2;
+	int good_primes_count = 1;
 
 	for(unsigned int i = 1; i < smoothnessBound; i++)
 	{
@@ -64,22 +64,28 @@ factor_list * sieving(const mpz_t num){
 
 		if(mpz_cmp_ui(tmp, 1) == 0)
 		{
-			good[nrGoodNums] = primes[i];
-			nrGoodNums++;
+			good_primes[good_primes_count] = primes[i];
+			good_primes_count++;
 		}
 	}
 
+	char bit_matrix[maxNumberOfSieving][maxNumberOfSieving];
 
-	// Find the good numbers
-	for(unsigned int i = 0; i < nrGoodNums; i++){
-		for(unsigned int j = 0; j < maxNumberOfSieving; j++){
-			if(mpz_divisible_ui_p(numbers[j], good[i])){
-				mpz_divexact_ui(numbers[j], numbers[j], good[i]);
+	// Find the good prime numbers
+	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
+	{
+		for(unsigned int p = 0; p < good_primes_count; p++) // wtf is i?
+		{
+			if(mpz_divisible_ui_p(numbers[i], good_primes[p]))
+			{
+				mpz_divexact_ui(numbers[i], numbers[i], good_primes[p]);
+				bit_matrix[i][p] = (bit_matrix[i][p]+1) & 1;
+				--p;
 			}
 		}
 	}
 
-	// Select good ones to return
+	// Select good number for return
 	factor_list * ret = malloc(sizeof(factor_list));
 	ret->value = NULL;
 	ret->next = NULL;
@@ -87,10 +93,10 @@ factor_list * sieving(const mpz_t num){
 	{
 		if(mpz_cmp_ui(numbers[i], 1) == 0)
 		{
-			mpz_t * goodNum = malloc(sizeof(mpz_t));
-			mpz_init_set(*goodNum, copy[i]);
+			mpz_t * goodPrimeNumber = malloc(sizeof(mpz_t));
+			mpz_init_set(*goodPrimeNumber, copy[i]);
 
-			factor_list_add(&ret, goodNum);
+			factor_list_add(&ret, goodPrimeNumber);
 		}
 	}
 
