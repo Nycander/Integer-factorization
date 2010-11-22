@@ -45,8 +45,7 @@ factor_list * sieving(const mpz_t num){
 		mpz_init(numbers[i]);
 		mpz_sub(numbers[i],tmp,num);
 
-		mpz_init(copy[i]);
-		mpz_sub(copy[i],tmp,num);
+		mpz_init_set(copy[i], numbers[i]);
 	}
 
 
@@ -57,7 +56,7 @@ factor_list * sieving(const mpz_t num){
 		good_primes[0] = 2;
 	int good_primes_count = 1;
 
-	for(unsigned int i = 1; i < smoothnessBound && mpz_cmp_ui(num, primes[i]) >= 0; i++)
+	for(unsigned int i = 1; i < smoothnessBound; i++)
 	{
 		mpz_set_ui (mod, primes[i]);
 		mpz_powm_ui (tmp, num, (primes[i]-1)/2, mod);
@@ -82,7 +81,8 @@ factor_list * sieving(const mpz_t num){
 	// Find the good prime numbers
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
 	{
-		for(unsigned int p = 0; p < good_primes_count; p++) // wtf is i?
+		// Let the trial division commence!
+		for(unsigned int p = 0; p < good_primes_count; p++)
 		{
 			if(mpz_divisible_ui_p(numbers[i], good_primes[p]) != 0)
 			{
