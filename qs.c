@@ -5,6 +5,9 @@
 
 #include "qs.h"
 
+#include "settings.h"
+#include "primes.h"
+
 int maxNumberOfSieving = 60;
 int smoothnessBound = 90;
 
