@@ -34,7 +34,7 @@ void factor(mpz_t n)
 #endif
 #endif
 
-	if (mpz_sizeinbase(n, 10) >= USE_QUADRATIC_SIEVE_DIGIT_THRESHOLD)
+	if (mpz_sizeinbase(n, 2) >= USE_QUADRATIC_SIEVE_BIT_THRESHOLD)
 	{
 		if (quadratic_sieve(&factors, n))
 		{
