@@ -20,18 +20,10 @@ void factor(mpz_t n)
 
 #if USE_TRIAL_DIVISION
 	// Exhaust trivial primes with trial division
-	int trivialPrimesCount = 0;
-	while(1)
-	{
-		mpz_t * newPointer = trial_division(&factors, primes, primes_count, n);
-		if (newPointer == 0)
-			break;
+	n = *trial_division(&factors, primes, primes_count, n);
 
-		n = *newPointer;
-		trivialPrimesCount++;
-	}
 #if VERBOSE
-	gmp_printf("\tExhausted trivial primes after %d iterations; n = %Zd\n", trivialPrimesCount, n);
+	gmp_printf("\tExhausted trivial primes; n = %Zd\n", n);
 #endif
 #endif
 

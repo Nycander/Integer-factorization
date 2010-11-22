@@ -20,9 +20,9 @@ mpz_t * trial_division(factor_list ** f, int * primes, int primes_count, const m
 
 			factor_list_add(f, prime);
 
-			return n;
+			i--;
 		}
 	}
 
-	return 0;
+	return n;
 }
