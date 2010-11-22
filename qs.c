@@ -1,23 +1,21 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
 #include <limits.h>
 
-#include "primes.h"
+#include "qs.h"
 #include "factor_list.h"
 #include "settings.h"
-
-void quadratic_sieve(const mpz_t num);
-factor_list * sieving(const mpz_t num);
+#include "primes.h"
 
 int maxNumberOfSieving = 60;
 int smoothnessBound = 90;
 
-void quadratic_sieve(const mpz_t num)
+int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
 	/*factor_list * list =*/ sieving(num);
 	// TODO: Factor numbers % mod 1 in matrix
+	return 0;
 }
 
 /*

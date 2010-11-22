@@ -3,7 +3,6 @@
 
 #include "trialdivision.h"
 #include "factor_list.h"
-
 #include "primes.h" // Should contain the array primes[]
 
 mpz_t * trial_division(factor_list ** f, const mpz_t N)
