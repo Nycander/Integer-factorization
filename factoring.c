@@ -8,6 +8,7 @@
 #include "trialdivision.h"
 #include "pollard.h"
 #include "qs.h"
+#include "primes.h"
 
 int current_input_number = 0;
 
@@ -19,18 +20,10 @@ void factor(mpz_t n)
 
 #if USE_TRIAL_DIVISION
 	// Exhaust trivial primes with trial division
-	int trivialPrimesCount = 0;
-	while(1)
-	{
-		mpz_t * newPointer = trial_division(&factors, n);
-		if (newPointer == 0)
-			break;
+	n = *trial_division(&factors, primes, primes_count, n);
 
-		n = *newPointer;
-		trivialPrimesCount++;
-	}
 #if VERBOSE
-	gmp_printf("\tExhausted trivial primes after %d iterations; n = %Zd\n", trivialPrimesCount, n);
+	gmp_printf("\tExhausted trivial primes; n = %Zd\n", n);
 #endif
 #endif
 
@@ -42,7 +35,7 @@ void factor(mpz_t n)
 		}
 		else
 		{
-			printf("fail\n");
+			printf("fail\n\n");
 		}
 	}
 	else
@@ -56,7 +49,6 @@ void factor(mpz_t n)
 			printf("fail\n\n");
 		}
 	}
-
 	// TODO: free the linked list!
 }
 
