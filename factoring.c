@@ -49,7 +49,6 @@ void factor(mpz_t n)
 			printf("fail\n\n");
 		}
 	}
-
 	// TODO: free the linked list!
 }
 

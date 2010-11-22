@@ -84,11 +84,19 @@ factor_list * sieving(const mpz_t num){
 	{
 		for(unsigned int p = 0; p < good_primes_count; p++) // wtf is i?
 		{
-			if(mpz_divisible_ui_p(numbers[i], good_primes[p]))
+			if(mpz_divisible_ui_p(numbers[i], good_primes[p]) != 0)
 			{
 				mpz_divexact_ui(numbers[i], numbers[i], good_primes[p]);
 				bit_matrix[i][p] = (bit_matrix[i][p]+1) & 1;
-				--p;
+
+				if (mpz_cmp_ui(numbers[i], 1) == 0)
+				{
+					break;
+				}
+				else
+				{
+					--p;
+				}
 			}
 		}
 	}

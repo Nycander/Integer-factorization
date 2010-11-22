@@ -28,7 +28,14 @@ mpz_t * trial_division(factor_list ** f, int * primes, int primes_count, const m
 
 			factor_list_add(f, prime);
 
-			i--;
+			if (mpz_cmp_ui(*n, 1) == 0)
+			{
+				break;
+			}
+			else
+			{
+				--i;
+			}
 		}
 	}
 
