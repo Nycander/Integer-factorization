@@ -96,41 +96,51 @@ int rho(mpz_t result, const mpz_t N)
 
 int brent(const mpz_t N, mpz_t divisor)
 {
-	mpz_t x;		mpz_init_set_ui(x, 2);
+	unsigned int iterations = 0;
+	unsigned int x0 = 2;
+	mpz_t power;	mpz_init_set_ui(power, 1);
+	mpz_t lambda;	mpz_init_set_ui(lambda, 1);
+	mpz_t tortoise;	mpz_init_set_ui(tortoise, x0);
+	mpz_t hare;		mpz_init(hare); f(hare, tortoise, N);
+	mpz_t diff;		mpz_init(diff);
+	int ret = 1;
 
-	mpz_t tortoise, hare; mpz_init(tortoise); mpz_init(hare);
-	unsigned int power = 1, lam = 1;
-	mpz_set(tortoise, x);
-	f(hare, tortoise, N);
-	while(mpz_cmp(tortoise, hare) != 0)
+	while(mpz_cmp_ui(divisor,1)==0)
 	{
-		if(power == lam)
+		if(iterations++>POLLARD_THRESHOLD)
+		{
+		#if VERBOSE
+			gmp_printf("Gave up on %Zd after %i iterations.\n",N,iterations);
+		#endif
+			ret = 0;
+			break;
+		}
+		if(mpz_cmp(power, lambda)==0)
 		{
 			mpz_set(tortoise, hare);
-			power *= 2;
-			lam = 0;
+			mpz_mul_ui(power, power, 2);
+			mpz_set_ui(lambda, 0);
 		}
-		f(hare, hare, divisor);
-		lam++;
-	}
-	unsigned int mu = 0;
-	mpz_set(tortoise, x); mpz_set(hare, x);
-	int i;
-	for(i=0; i<lam;i++)
-	{
 		f(hare, hare, N);
+		mpz_add_ui(lambda, lambda, 1);
+
+		mpz_sub(diff, tortoise, hare);
+		mpz_abs(diff, diff);
+		/*if(mpz_cmp_ui(diff,0)==0)
+		{
+			gmp_printf("Visited all values in the cycle\n");
+			ret = 0;
+			break;
+		}*/
+		mpz_gcd(divisor,diff,N);
+
 	}
-	while(mpz_cmp(tortoise, hare) != 0)
-	{
-		f(tortoise, tortoise, N);
-		f(hare, hare, N);
-		mu++;
-	}
-	mpz_sub(tortoise, tortoise, hare);
-	mpz_abs(tortoise, tortoise);
-	mpz_gcd(divisor, tortoise, N);
-	mpz_clear(x);
-	return 1;
+	mpz_clear(diff);
+	mpz_clear(power);
+	mpz_clear(lambda);
+	mpz_clear(tortoise);
+	mpz_clear(hare);
+	return mpz_cmp(divisor, N)==0?0:ret;
 }
 
 int floyd(const mpz_t N, mpz_t divisor)
