@@ -7,6 +7,7 @@
 #include "factor_list.h"
 #include "trialdivision.h"
 #include "pollard.h"
+#include "qs.h"
 
 int current_input_number = 0;
 
@@ -33,18 +34,27 @@ void factor(mpz_t n)
 #endif
 #endif
 
-	if (pollard(&factors, n))
+	if (mpz_sizeinbase(n, 2) >= USE_QUADRATIC_SIEVE_BIT_THRESHOLD)
 	{
-		while(*(factors->value) != NULL)
+		if (quadratic_sieve(&factors, n))
 		{
-			gmp_printf("%Zd\n", factors->value);
-			factors = factors->next;
+			factor_list_print(factors);
 		}
-		printf("\n");
+		else
+		{
+			printf("fail\n");
+		}
 	}
 	else
 	{
-		printf("fail\n\n");
+		if (pollard(&factors, n))
+		{
+			factor_list_print(factors);
+		}
+		else
+		{
+			printf("fail\n\n");
+		}
 	}
 
 	// TODO: free the linked list!
