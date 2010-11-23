@@ -5,7 +5,7 @@
 #include "factor_list.h"
 #include "primes.h"
 
-mpz_t * trial_division(factor_list ** f, int * primes, int primes_count, const mpz_t N)
+mpz_t * trial_division(factor_list ** f, unsigned int * primes, unsigned int primes_count, const mpz_t N)
 {
 
 	mpz_t * n = malloc(sizeof(mpz_t));

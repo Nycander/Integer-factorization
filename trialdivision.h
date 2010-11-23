@@ -4,6 +4,6 @@
 #include <gmp.h>
 #include "factor_list.h"
 
-mpz_t * trial_division(factor_list ** f, int * primes, int prime_count, const mpz_t n);
+mpz_t * trial_division(factor_list ** f, unsigned int * primes, unsigned int prime_count, const mpz_t n);
 
 #endif
