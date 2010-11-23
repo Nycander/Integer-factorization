@@ -66,7 +66,7 @@ int main(int argc, char * argv[])
 	while(++current_input_number <= limit)
 	{
 #if VERBOSE
-		printf("> ");
+		printf("# ");
 #endif
 
 		mpz_init(num);

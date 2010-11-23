@@ -42,7 +42,11 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		good_primes[0] = 2;
 	int good_primes_count = 1;
 
-	for(unsigned int i = 1; i < smoothnessBound; i++)
+	#if VERBOSE
+	printf("Finding good primes: \n\t2\n");
+	#endif
+
+	for(unsigned int i = 1; mpz_cmp_ui(num, primes[i]) > 0 && i < smoothnessBound; i++)
 	{
 		mpz_set_ui (mod, primes[i]);
 		mpz_powm_ui (tmp, num, (primes[i]-1)/2, mod);
@@ -51,12 +55,15 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		{
 			good_primes[good_primes_count] = primes[i];
 			good_primes_count++;
+
+			#if VERBOSE
+			printf("\t%d\n", primes[i]);
+			#endif
 		}
 	}
 
 	// Initialize bit matrix
 	char complete_bit_matrix[good_primes_count][maxNumberOfSieving];
-
 	for(int i = 0; i < good_primes_count; i++)
 	{
 		for(int j = 0; j < maxNumberOfSieving; j++)
@@ -70,19 +77,33 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	ret->value = NULL;
 	ret->next = NULL;
 
+	#if VERBOSE
+	printf("Computing good numbers: \n");
+	#endif
 	int number_count = 0;
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
 	{
+		#if VERBOSE
+		gmp_printf("\t%Zd = ", numbers[i]);
+		#endif
+
 		// Let the trial division commence!
 		for(unsigned int p = 0; p < good_primes_count; p++)
 		{
 			if(mpz_divisible_ui_p(numbers[i], good_primes[p]) != 0)
 			{
+				#if VERBOSE
+				printf("%d * ", good_primes[p]);
+				#endif
+
 				mpz_divexact_ui(numbers[i], numbers[i], good_primes[p]);
-				complete_bit_matrix[p][i] = (complete_bit_matrix[p][i]+1) & 1;
+				complete_bit_matrix[p][i] = (complete_bit_matrix[p][i]+1) & (char)1;
 
 				if (mpz_cmp_ui(numbers[i], 1) == 0)
 				{
+					#if VERBOSE
+					gmp_printf("1 = OK!");
+					#endif
 					mpz_t * goodPrimeNumber = malloc(sizeof(mpz_t));
 					mpz_init_set(*goodPrimeNumber, copy[i]);
 
@@ -97,24 +118,53 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				}
 			}
 		}
+		#if VERBOSE
+		printf("\n");
+		#endif
 	}
-	char bit_matrix[good_primes_count][number_count];
-	int n = 0;
 
 	#if VERBOSE
-	printf("Matrix will be %d x %d\n", number_count, good_primes_count);
+	printf("\nComplete bit matrix:\n\n");
+	for(int column = 0; column < good_primes_count; column++)
+	{
+		for(int row = 0; row < maxNumberOfSieving; row++)
+		{
+			printf("%d ", complete_bit_matrix[column][row]);
+		}
+		printf("\n");
+	}
 	#endif
 
+	#if VERBOSE
+	printf("\nMatrix will be %d x %d\n", number_count, good_primes_count);
+	#endif
+
+	// Initialize the real bit matrix
+	char bit_matrix[good_primes_count][number_count];
+	// Copy values from complete_matrix to bit_matrix
+	int n = 0;
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
 	{
-		if (mpz_cmp_ui(numbers[i], 1) == 0)
+		if (mpz_cmp_ui(numbers[i], 1) == 0 && mpz_cmp_ui(copy[i], 1) != 0)
 		{
 			for(unsigned int p = 0; p < good_primes_count; p++)
 			{
-				bit_matrix[p][n++] = complete_bit_matrix[p][i];
+				bit_matrix[p][n] = complete_bit_matrix[p][i];
 			}
+			n++;
 		}
 	}
+
+	#if VERBOSE
+	for(int column = 0; column < good_primes_count; column++)
+	{
+		for(int row = 0; row < number_count; row++)
+		{
+			printf("%d ", bit_matrix[column][row]);
+		}
+		printf("\n");
+	}
+	#endif
 
 	// Clear our variables!
 	mpz_clear(sqrtN), mpz_clear(tmp), mpz_clear(mod);
@@ -124,50 +174,87 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		mpz_clear(copy[i]);
 	}
 
-	#if VERBOSE
-	for(int column = 0; column < good_primes_count; column++)
+	// Guass elminiation
+	for(int column = 0, row = 0; column < number_count; column++, row++)
 	{
-		for(int row = 0; row < number_count; row++)
+		#if VERBOSE
+		printf("\n\tLooking at column %d amd row %d in matrix:\n", column, row);
+		for(int row = 0; row < good_primes_count; row++)
 		{
-			printf("%d ", bit_matrix[row][column]);
+			printf("\t");
+			for(int column = 0; column < number_count; column++)
+			{
+				printf("%d ", bit_matrix[row][column]);
+			}
+			printf("\n");
 		}
 		printf("\n");
-	}
-	#endif
-	/*
-	// TODO: Guass elminiation
-	for(int column = 0; column < good_primes_count; column++)
-	{
-		for(int row = 0; row < number_count; row++)
+		#endif
+
+		// Find first 1 in column
+		int maxRow = row;
+		while(maxRow < good_primes_count-1)
 		{
-			// Find first 1 in column
-			int maxColumn = column;
-			for(int r = column+1; bit_matrix[r][row] == 0 && r < good_primes_count; r++)
-				maxColumn = r;
+			if (bit_matrix[maxRow][column] == 1)
+				break;
+
+			maxRow++;
+		}
+
+		// If we couldn't find a 1
+		if (bit_matrix[maxRow][column] == 0)
+		{
+			row--;
+			continue;
+		}
+
+		#if VERBOSE
+		printf("\tFound a 1 on row %d\n", maxRow);
+		#endif
+
+		// If we must replace the largest row to the top, swap them.
+		if (maxRow != row)
+		{
+			#if VERBOSE
+			printf("\tSwapping rows %d and %d...\n", row, maxRow);
+			#endif
 
 			// Swap row i and maxColumn
 			char tmp[maxNumberOfSieving];
 			for(int c = 0; c < number_count; c++)
 			{
-				tmp[c] = bit_matrix[column][c];
-				bit_matrix[column][c] = bit_matrix[maxColumn][c];
-				bit_matrix[maxColumn][c] = tmp[c];
-			}
-
-			// Make sure all rows below this row has an initial zero.
-			for(int r = column+1; r < good_primes_count; r++)
-			{
-				if (bit_matrix[r][row] == 0)
-					continue;
-
-				// Subtract bit_matrix[k][row] * bit_matrix[column] from bit_matrix[k]
-				for(int c = 0; c < number_count; c++)
-				{
-					bit_matrix[r][c] = bit_matrix[r][c] ^ bit_matrix[column][c];
-				}
+				tmp[c] = bit_matrix[row][c];
+				bit_matrix[row][c] = bit_matrix[maxRow][c];
+				bit_matrix[maxRow][c] = tmp[c];
 			}
 		}
+
+		#if VERBOSE
+		printf("\tXOR-ing row %d with rows... ", row);
+		#endif
+
+		// Make sure all rows below this row has an initial zero.
+		for(int r = row+1; r < good_primes_count; r++)
+		{
+			if (bit_matrix[r][column] == 0)
+				continue;
+
+			#if VERBOSE
+			printf("%d ", r);
+			#endif
+
+			// Subtract bit_matrix[k][row] * bit_matrix[column] from bit_matrix[k]
+			for(int c = 0; c < number_count; c++)
+			{
+				bit_matrix[r][c] = bit_matrix[r][c] ^ bit_matrix[row][c];
+			}
+		}
+		#if VERBOSE
+		printf("\n");
+		#endif
 	}
+	#if VERBOSE
+	printf("\nAfter gauss:\n\n");
 	for(int column = 0; column < good_primes_count; column++)
 	{
 		for(int row = 0; row < number_count; row++)
@@ -175,31 +262,9 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			printf("%d ", bit_matrix[column][row]);
 		}
 		printf("\n");
-	}*/
-	/*i := 1
-	j := 1
-	while (i ≤ m and j ≤ n) do
-	  Find pivot in column j, starting in row i:
-	  maxi := i
-	  for k := i+1 to m do
-	    if abs(A[k,j]) > abs(A[maxi,j]) then
-	      maxi := k
-	    end if
-	  end for
-	  if A[maxi,j] ≠ 0 then
-	    swap rows i and maxi, but do not change the value of i
-	    Now A[i,j] will contain the old value of A[maxi,j].
-	    divide each entry in row i by A[i,j]
-	    Now A[i,j] will have the value 1.
-	    for u := i+1 to m do
-	      subtract A[u,j] * row i from row u
-	      Now A[u,j] will be 0, since A[u,j] - A[i,j] * A[u,j] = A[u,j] - 1 * A[u,j] = 0.
-	    end for
-	    i := i + 1
-	  end if
-	  j := j + 1
-	end while
-	*/
+	}
+	#endif
+
 	// TODO: Get solution vectors
 
 	// TODO: Use epic math to calculate factors.
