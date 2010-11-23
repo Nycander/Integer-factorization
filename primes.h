@@ -2,8 +2,8 @@
 #define PRIMES_H_
 
 
-int primes_count;
-int primes[500];
+unsigned int primes_count;
+unsigned int primes[500];
 
 
 #endif

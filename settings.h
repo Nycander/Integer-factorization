@@ -10,5 +10,4 @@
 #define POLLARD_THRESHOLD 250000
 #define USE_BRENT_INSTEAD_OF_FLOYD 1
 
-
 #endif
