@@ -72,15 +72,14 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		}
 	}
 
-	// Find the good prime numbers
-	factor_list * ret = malloc(sizeof(factor_list));
-	ret->value = NULL;
-	ret->next = NULL;
-
 	#if VERBOSE
 	printf("Computing good numbers: \n");
 	#endif
+
+	// Find the good prime numbers
+	mpz_t * nums[maxNumberOfSieving];
 	int number_count = 0;
+
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
 	{
 		#if VERBOSE
@@ -104,11 +103,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 					#if VERBOSE
 					gmp_printf("1 = OK!");
 					#endif
-					mpz_t * goodPrimeNumber = malloc(sizeof(mpz_t));
-					mpz_init_set(*goodPrimeNumber, copy[i]);
 
-					factor_list_add(&ret, goodPrimeNumber);
-					number_count++;
+					nums[number_count++] = &copy[i];
 
 					break;
 				}
@@ -359,6 +355,20 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		}
 		printf("\n");
 		#endif
+
+		/*
+		It is not this easy:
+		
+		for(int s = 0; s < bit_matrix_width; s++)
+		{
+			if (solution[s] == 0)
+				continue;
+
+			mpz_t * n = malloc(sizeof(mpz_t));
+			mpz_init_set(*n, *nums[s]);
+			factor_list_add(result, n);
+		}*/
+		return 1;
 	}
 
 
