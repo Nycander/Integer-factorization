@@ -358,7 +358,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 		/*
 		It is not this easy:
-
 		for(int s = 0; s < bit_matrix_width; s++)
 		{
 			if (solution[s] == 0)
@@ -373,7 +372,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		Use linear algebra to find a subset of these vectors which add to the zero vector. Multiply the corresponding ai together naming the result mod n: a and the bi together which yields a B-smooth square b2.
 
 		We are now left with the equality a2=b2 mod n from which we get two square roots of (a2 mod n), one by taking the square root in the integers of b2 namely b, and the other the a computed in step 4.
-		
+
 		We now have the desired identity: (a + b)(a − b) = 0(mod n). Compute the GCD of n with the difference (or sum) of a and b. This produces a factor, although it may be a trivial factor (n or 1). If the factor is trivial, try again with a different linear dependency or different a.
 		*/
 		return 1;
