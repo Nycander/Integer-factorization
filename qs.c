@@ -156,8 +156,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		}
 	}
 
-	// Clear our variables!
-	mpz_clear(sqrtN), mpz_clear(tmp), mpz_clear(mod);
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
 	{
 		mpz_clear(numbers[i]);
@@ -356,28 +354,51 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		printf("\n");
 		#endif
 
-		/*
-		It is not this easy:
+		//Orginaltalens produkt
+		mpz_set_ui(ret1,1);
 		for(int s = 0; s < bit_matrix_width; s++)
 		{
 			if (solution[s] == 0)
 				continue;
 
-			mpz_t * n = malloc(sizeof(mpz_t));
-			mpz_init_set(*n, *nums[s]);
-			factor_list_add(result, n);
-		}*/
+			mpz_mul(ret1, ret1, *numbers[s]);
+		}
+		mpz_sqrt(ret1, ret1);
 
-		/*
-		Use linear algebra to find a subset of these vectors which add to the zero vector. Multiply the corresponding ai together naming the result mod n: a and the bi together which yields a B-smooth square b2.
+		//Orginalfaktorernas produkt
+		mpz_set_ui(tmp,1);
+		mpz_sqrt(sqrtN, num);
+		for(int s = 1; s < bit_matrix_width; s++)
+		{
+			if (solution[s] == 0)
+				continue;
+			mpz_add_ui(tmp, sqrtN, (s+1));
+			mpz_mul(ret2, ret2, tmp);
+		}
+		//tmp save
+		mpz_set(tmp, ret1);
+		//num1
+		mpz_add(ret1, ret1, ret2);
+		//num2
+		mpz_sub(ret2, tmp, ret2);
 
-		We are now left with the equality a2=b2 mod n from which we get two square roots of (a2 mod n), one by taking the square root in the integers of b2 namely b, and the other the a computed in step 4.
+		//factor 1
+		mpz_gcd(ret1, ret1, num);
+		//factor 2
+		mpz_gcd(ret2, ret2, num);
 
-		We now have the desired identity: (a + b)(a − b) = 0(mod n). Compute the GCD of n with the difference (or sum) of a and b. This produces a factor, although it may be a trivial factor (n or 1). If the factor is trivial, try again with a different linear dependency or different a.
-		*/
+		//save factors for return!! (can be trivial)
+		mpz_t * m = malloc(sizeof(mpz_t));
+		mpz_init_set(*m, *ret1);
+		factor_list_add(result, m);
+
+		mpz_t * n = malloc(sizeof(mpz_t));
+		mpz_init_set(*n, *ret2);
+		factor_list_add(result, n);
+
+		// Clear our variables!
+		mpz_clear(sqrtN), mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
 		return 1;
 	}
-
-
 	return 0;
 }
