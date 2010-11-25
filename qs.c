@@ -361,7 +361,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			if (solution[s] == 0)
 				continue;
 
-			mpz_mul(ret1, ret1, *numbers[s]);
+			mpz_mul(ret1, ret1, numbers[s]);
 		}
 		mpz_sqrt(ret1, ret1);
 
@@ -389,11 +389,11 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 		//save factors for return!! (can be trivial)
 		mpz_t * m = malloc(sizeof(mpz_t));
-		mpz_init_set(*m, *ret1);
+		mpz_init_set(*m, ret1);
 		factor_list_add(result, m);
 
 		mpz_t * n = malloc(sizeof(mpz_t));
-		mpz_init_set(*n, *ret2);
+		mpz_init_set(*n, ret2);
 		factor_list_add(result, n);
 
 		// Clear our variables!
