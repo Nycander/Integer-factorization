@@ -387,6 +387,10 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		//factor 2
 		mpz_gcd(ret2, ret2, num);
 
+		#if VERBOSE
+		printf("Factors: \t%Zd, %Zd ", ret1, ret2);
+		#endif
+
 		//save factors for return!! (can be trivial)
 		mpz_t * m = malloc(sizeof(mpz_t));
 		mpz_init_set(*m, ret1);
