@@ -156,8 +156,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		}
 	}
 
-	// Clear our variables!
-	mpz_clear(sqrtN), mpz_clear(tmp), mpz_clear(mod);
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
 	{
 		mpz_clear(numbers[i]);
@@ -356,21 +354,57 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		printf("\n");
 		#endif
 
-		/*
-		It is not this easy:
-		
+		/* NEEEEEEEEEEEEEEEEEW!
+
+		//Orginaltalens produkt
+		mpz_set_ui(ret1,1);
 		for(int s = 0; s < bit_matrix_width; s++)
 		{
 			if (solution[s] == 0)
 				continue;
 
-			mpz_t * n = malloc(sizeof(mpz_t));
-			mpz_init_set(*n, *nums[s]);
-			factor_list_add(result, n);
-		}*/
+			mpz_mul(ret1, ret1, *numbers[s]);
+		}
+		mpz_sqrt(ret1, ret1);
+
+
+
+		//Orginalfaktorernas produkt
+		mpz_set_ui(tmp,1);
+		mpz_sqrt(sqrtN, num);
+		for(int s = 1; s < bit_matrix_width; s++)
+		{
+			if (solution[s] == 0)
+				continue;
+			mpz_add_ui(tmp, sqrtN, (s+1));
+			mpz_mul(ret2, ret2, tmp);
+		}
+		//tmp save
+		mpz_set(tmp, ret1);
+		//num1
+		mpz_add(ret1, ret1, ret2);
+		//num2
+		mpz_sub(ret2, tmp, ret2);
+
+		//factor 1
+		mpz_gcd(ret1, ret1, num);
+		//factor 2
+		mpz_gcd(ret2, ret2, num);
+
+		//save factors for return!! (can be trivial)
+		mpz_t * m = malloc(sizeof(mpz_t));
+		mpz_init_set(*m, *ret1);
+		factor_list_add(result, m);
+
+		mpz_t * n = malloc(sizeof(mpz_t));
+		mpz_init_set(*n, *ret2);
+		factor_list_add(result, n);
+
+		*/
+
+		// Clear our variables!
+		mpz_clear(sqrtN), mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
 		return 1;
 	}
-
-
 	return 0;
 }
