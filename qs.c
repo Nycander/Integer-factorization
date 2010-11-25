@@ -13,8 +13,8 @@ int smoothnessBound = 500;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
-	mpz_t sqrtN, tmp, mod;
-	mpz_init(sqrtN), mpz_init(tmp), mpz_init(mod);
+	mpz_t sqrtN, tmp, mod,ret1, ret2;
+	mpz_init(sqrtN), mpz_init(tmp), mpz_init(ret1), mpz_init(ret2), mpz_init(mod);
 	mpz_sqrt(sqrtN, num);
 
 
