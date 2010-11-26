@@ -11,6 +11,8 @@
 int maxNumberOfSieving = 60;
 int smoothnessBound = 500;
 
+// TEH EPIC QUADRATIC SIEVE!
+
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
 	mpz_t sqrtN, tmp, mod,ret1, ret2;
@@ -163,12 +165,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			}
 			n++;
 		}
-	}
-
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
-	{
-		mpz_clear(numbers[i]);
-		mpz_clear(copy[i]);
 	}
 
 	#if VERBOSE
@@ -370,20 +366,22 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			if (solution[s] == 0)
 				continue;
 
-			mpz_mul(ret1, ret1, numbers[s]);
+			mpz_mul(ret1, ret1, copy[s]);
 		}
 		mpz_sqrt(ret1, ret1);
 
 		//Orginalfaktorernas produkt
 		mpz_set_ui(tmp,1);
 		mpz_sqrt(sqrtN, num);
-		for(int s = 1; s < bit_matrix_width; s++)
+		for(int s = 0; s < bit_matrix_width; s++)
 		{
 			if (solution[s] == 0)
 				continue;
 			mpz_add_ui(tmp, sqrtN, (s+1));
 			mpz_mul(ret2, ret2, tmp);
 		}
+		
+
 		//tmp save
 		mpz_set(tmp, ret1);
 		//num1
@@ -394,6 +392,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		#if VERBOSE
 		printf("Num1 and num2:  ");
 		gmp_printf("\t %Zd, %Zd \n", ret1, ret2);
+		mpz_sub(tmp, ret1, ret2);
+		gmp_printf("Diff: %Zd ", tmp);
 		#endif
 
 		//factor 1
@@ -417,6 +417,13 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 		// Clear our variables!
 		mpz_clear(sqrtN), mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
+
+		for(unsigned int i = 0; i < maxNumberOfSieving; i++)
+		{
+			mpz_clear(numbers[i]);
+			mpz_clear(copy[i]);
+		}
+
 		return 1;
 	}
 	return 0;
