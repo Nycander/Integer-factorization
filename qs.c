@@ -81,6 +81,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	// Find the good prime numbers
 	mpz_t * nums[maxNumberOfSieving];
 	int number_count = 0;
+	int OGindexes[maxNumberOfSieving];
 
 	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
 	{
@@ -106,7 +107,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 					gmp_printf("1 = OK!");
 					#endif
 
-					nums[number_count++] = &copy[i];
+					nums[number_count] = &copy[i];
+					OGindexes[number_count++] = i;
 
 					break;
 				}
@@ -366,7 +368,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			if (solution[s] == 0)
 				continue;
 
-			mpz_mul(ret1, ret1, copy[s]);
+			mpz_mul(ret1, ret1, *nums[s]);
 		}
 		mpz_sqrt(ret1, ret1);
 
@@ -377,7 +379,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		{
 			if (solution[s] == 0)
 				continue;
-			mpz_add_ui(tmp, sqrtN, (s+1));
+			mpz_add_ui(tmp, sqrtN, (OGindexes[s]+1));
 			mpz_mul(ret2, ret2, tmp);
 		}
 		
