@@ -385,6 +385,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 		//Orginalfaktorernas produkt
 		mpz_set_ui(tmp,1);
+		mpz_set_ui(ret2,1);
 		mpz_sqrt(sqrtN, num);
 		for(int s = 0; s < bit_matrix_width; s++)
 		{
