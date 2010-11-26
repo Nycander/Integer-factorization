@@ -8,7 +8,6 @@
 #include "settings.h"
 #include "primes.h"
 
-int maxNumberOfSieving = 30;
 int smoothnessBound = 500;
 
 // TEH EPIC QUADRATIC SIEVE!
@@ -18,23 +17,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	mpz_t sqrtN, tmp, mod,ret1, ret2;
 	mpz_init(sqrtN), mpz_init(tmp), mpz_init(ret1), mpz_init(ret2), mpz_init(mod);
 	mpz_sqrt(sqrtN, num);
-
-
-	mpz_t numbers[maxNumberOfSieving];
-	mpz_t copy[maxNumberOfSieving];
-
-
-	// Generate numbers
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++)
-	{
-		mpz_add_ui(sqrtN, sqrtN, 1);
-		mpz_mul(tmp, sqrtN, sqrtN);
-
-		mpz_init(numbers[i]);
-		mpz_sub(numbers[i],tmp,num);
-
-		mpz_init_set(copy[i], numbers[i]);
-	}
 
 
 	// Time to find good prime numbers! :D
@@ -63,53 +45,65 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			#endif
 		}
 	}
+	int num_sieved_count = good_primes_count+1;
+
+
+	#if VERBOSE
+	printf("Initializing bit matrix...\n");
+	#endif
 
 	// Initialize bit matrix
-	char complete_bit_matrix[good_primes_count][maxNumberOfSieving];
+	char bit_matrix[good_primes_count][num_sieved_count];
 	for(int i = 0; i < good_primes_count; i++)
 	{
-		for(int j = 0; j < maxNumberOfSieving; j++)
+		for(int j = 0; j < num_sieved_count; j++)
 		{
-			complete_bit_matrix[i][j] = 0;
+			bit_matrix[i][j] = 0;
 		}
 	}
 
-	#if VERBOSE
-	printf("Computing good numbers: \n");
-	#endif
 
 	// Find the good prime numbers
-	mpz_t * nums[maxNumberOfSieving];
+	mpz_t nums[num_sieved_count];
 	int number_count = 0;
-	int OGindexes[maxNumberOfSieving];
+	int OGindexes[num_sieved_count];
 
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
+	#if VERBOSE
+	printf("Sieving numbers...\n");
+	#endif
+
+	// Generate numbers
+	for(unsigned int i = 0; num_sieved_count > number_count; i++)
 	{
+		mpz_t smoothNumCand;
+		mpz_init(smoothNumCand);
+
+		mpz_add_ui(sqrtN, sqrtN, 1);
+		mpz_mul(tmp, sqrtN, sqrtN);
+
+		mpz_sub(smoothNumCand,tmp,num);
+		mpz_set(tmp, smoothNumCand);
+
 		#if VERBOSE
-		gmp_printf("\t%Zd = ", numbers[i]);
+		gmp_printf("\t Trying %Zd ...\n", tmp);
 		#endif
 
 		// Let the trial division commence!
 		for(unsigned int p = 0; p < good_primes_count; p++)
 		{
-			if(mpz_divisible_ui_p(numbers[i], good_primes[p]) != 0)
+			if(mpz_divisible_ui_p(tmp, good_primes[p]) != 0)
 			{
-				#if VERBOSE
-				printf("%d * ", good_primes[p]);
-				#endif
+				mpz_divexact_ui(tmp, tmp, good_primes[p]);
 
-				mpz_divexact_ui(numbers[i], numbers[i], good_primes[p]);
-				complete_bit_matrix[p][i] = (complete_bit_matrix[p][i]+1) & (char)1;
-
-				if (mpz_cmp_ui(numbers[i], 1) == 0)
+				if (mpz_cmp_ui(tmp, 1) == 0)
 				{
-					#if VERBOSE
-					gmp_printf("1 = OK!");
-					#endif
 
-					nums[number_count] = &copy[i];
+					bit_matrix[p][number_count] = (bit_matrix[p][number_count]+1) & (char)1;
+					mpz_init_set(nums[number_count], smoothNumCand);
 					OGindexes[number_count++] = i;
-
+					#if VERBOSE
+					gmp_printf("Storing: %Zd \n", nums[number_count-1]);
+					#endif
 					break;
 				}
 				else
@@ -118,11 +112,17 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				}
 			}
 		}
-		#if VERBOSE
-		printf("\n");
-		#endif
+		mpz_clear(smoothNumCand);
 	}
 
+	#if VERBOSE
+	printf("\nFound the following numbers: ");
+	for(int i = 0; i < number_count; i++)
+	{
+		gmp_printf("%Zd ", nums[i]);
+	}
+	printf("\n");
+	#endif
 
 	// Time for some gauss!
 
@@ -130,9 +130,9 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	printf("\nComplete bit matrix:\n\n");
 	for(int column = 0; column < good_primes_count; column++)
 	{
-		for(int row = 0; row < maxNumberOfSieving; row++)
+		for(int row = 0; row < num_sieved_count; row++)
 		{
-			printf("%d ", complete_bit_matrix[column][row]);
+			printf("%d ", bit_matrix[column][row]);
 		}
 		printf("\n");
 	}
@@ -154,20 +154,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	#if VERBOSE
 		printf("\nMatrix will be %d x %d\n", bit_matrix_width, bit_matrix_height);
 	#endif
-	unsigned char bit_matrix[bit_matrix_height][bit_matrix_width];
-	// Copy values from complete_matrix to bit_matrix
-	int n = 0;
-	for(unsigned int i = 0; i < maxNumberOfSieving; i++) // numbers to factorize
-	{
-		if (mpz_cmp_ui(numbers[i], 1) == 0 && mpz_cmp_ui(copy[i], 1) != 0)
-		{
-			for(unsigned int p = 0; p < bit_matrix_height; p++)
-			{
-				bit_matrix[p][n] = complete_bit_matrix[p][i];
-			}
-			n++;
-		}
-	}
+
+
 
 	#if VERBOSE
 	for(int column = 0; column < bit_matrix_height; column++)
@@ -230,7 +218,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			#endif
 
 			// Swap row i and maxColumn
-			char tmp[maxNumberOfSieving];
+			char tmp[num_sieved_count];
 			for(int c = 0; c < bit_matrix_width; c++)
 			{
 				tmp[c] = bit_matrix[row][c];
@@ -370,10 +358,10 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			if (solution[s] == 0)
 				continue;
 			#if VERBOSE
-			gmp_printf("* %Zd ", *nums[s]);
+			gmp_printf("* %Zd ", nums[s]);
 			#endif
 
-			mpz_mul(ret1, ret1, *nums[s]);
+			mpz_mul(ret1, ret1, nums[s]);
 		}
 		mpz_sqrt(ret1, ret1);
 
@@ -392,7 +380,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			if (solution[s] == 0)
 				continue;
 
-			
+
 
 			mpz_add_ui(tmp, sqrtN, (OGindexes[s]+1));
 			#if VERBOSE
@@ -439,12 +427,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 		// Clear our variables!
 		mpz_clear(sqrtN), mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
-
-		for(unsigned int i = 0; i < maxNumberOfSieving; i++)
-		{
-			mpz_clear(numbers[i]);
-			mpz_clear(copy[i]);
-		}
 
 		return 1;
 	}
