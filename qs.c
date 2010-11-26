@@ -407,9 +407,9 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		//tmp save
 		mpz_set(tmp, ret1);
 		//num1
-		mpz_add(ret1, ret1, ret2);
+		mpz_add(ret1, ret2, ret1);
 		//num2
-		mpz_sub(ret2, tmp, ret2);
+		mpz_sub(ret2, ret2, tmp);
 
 		#if VERBOSE
 		printf("Num1 and num2:  ");
