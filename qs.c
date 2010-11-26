@@ -21,6 +21,10 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	while(mpz_cmp_ui(number_result,1) != 0){
 
+		#if VERBOSE
+		gmp_printf("\nFactoring the number %Zd ...\n\n", number_result);
+		#endif
+
 		mpz_t sqrtN, tmp, mod,ret1, ret2;
 		mpz_init(sqrtN), mpz_init(tmp), mpz_init(ret1), mpz_init(ret2), mpz_init(mod);
 		mpz_sqrt(sqrtN, num);
@@ -340,8 +344,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				printf("%d ", solution[s]);
 			}
 			printf("\n");
-
-			printf("\nret2: 1 ");
 			#endif
 
 			//Orginaltalens produkt
@@ -350,19 +352,10 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			{
 				if (solution[s] == 0)
 					continue;
-				#if VERBOSE
-				gmp_printf("* %Zd ", nums[s]);
-				#endif
 
 				mpz_mul(ret1, ret1, nums[s]);
 			}
 			mpz_sqrt(ret1, ret1);
-
-			#if VERBOSE
-			gmp_printf(" = %Zd \n", ret1);
-			printf("ret1: 1 ");
-			#endif
-
 
 			//Orginalfaktorernas produkt
 			mpz_set_ui(tmp,1);
@@ -374,14 +367,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 					continue;
 
 				mpz_add_ui(tmp, sqrtN, (OGindexes[s]+1));
-				#if VERBOSE
-				gmp_printf("* %Zd ", tmp);
-				#endif
 				mpz_mul(ret2, ret2, tmp);
 			}
-			#if VERBOSE
-			gmp_printf(" = %Zd \n", ret2);
-			#endif
 
 			//tmp save
 			mpz_set(tmp, ret1);
@@ -420,16 +407,6 @@ int try_adding_factor_to_result(mpz_t factor, const mpz_t ofNumber, factor_list 
 	if (mpz_cmp(factor, ofNumber) == 0)
 	{
 		return 0;
-	}
-
-	// Has this number been seen before?
-	factor_list * f = *result;
-	while(*(f->value) != NULL)
-	{
-		if (mpz_cmp(factor, *(f->value)) == 0)
-			return 0;
-
-		f = f->next;
 	}
 
 	#if VERBOSE
