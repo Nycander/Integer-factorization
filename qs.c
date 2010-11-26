@@ -8,7 +8,7 @@
 #include "settings.h"
 #include "primes.h"
 
-int maxNumberOfSieving = 60;
+int maxNumberOfSieving = 30;
 int smoothnessBound = 500;
 
 // TEH EPIC QUADRATIC SIEVE!
