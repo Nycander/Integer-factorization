@@ -21,6 +21,20 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	while(mpz_cmp_ui(number_result,1) != 0){
 
+		// Numbers below 2 should not be factored.
+		if (mpz_cmp_ui(number_result, 1) <= 0)
+		{
+			return 1;
+		}
+		// Base case: we have a prime number
+		else if (mpz_probab_prime_p(number_result, 10))
+		{
+			mpz_t * v = malloc(sizeof(mpz_t));
+			mpz_init_set(*v, number_result);
+			factor_list_add(result, v);
+			return 1;
+		}
+
 		#if VERBOSE
 		gmp_printf("\nFactoring the number %Zd ...\n\n", number_result);
 		#endif
@@ -385,9 +399,11 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			// Try to store the factors
 			if(try_adding_factor_to_result(ret1, number_result, result)){
 				mpz_divexact(number_result, number_result, ret1);
+				break;
 			}
 			if(try_adding_factor_to_result(ret2, number_result, result)){
 				mpz_divexact(number_result, number_result, ret2);
+				break;
 			}
 		}
 
