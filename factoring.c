@@ -31,6 +31,7 @@ void factor(mpz_t n)
 	{
 		if (quadratic_sieve(&factors, n))
 		{
+			
 			factor_list_print(factors);
 		}
 		else
