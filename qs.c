@@ -383,11 +383,10 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			mpz_gcd(ret2, ret2, num);
 
 			// Try to store the factors
-			if(try_adding_factor_to_result(ret1, num, result))
-			{
+			if(try_adding_factor_to_result(ret1, number_result, result)){
 				mpz_divexact(number_result, number_result, ret1);
 			}
-			if(try_adding_factor_to_result(ret2, num, result)){
+			if(try_adding_factor_to_result(ret2, number_result, result)){
 				mpz_divexact(number_result, number_result, ret2);
 			}
 		}
