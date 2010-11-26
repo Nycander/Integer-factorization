@@ -383,6 +383,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		#if VERBOSE
 		printf("Num1 and num2:  ");
 		gmp_printf("\t %Zd, %Zd \n", ret1, ret2);
+		mpz_sub(tmp, ret1, ret2);
+		gmp_printf("Diff: %Zd ", tmp);
 		#endif
 
 		//factor 1
