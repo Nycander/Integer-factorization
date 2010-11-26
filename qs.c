@@ -359,6 +359,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			printf("%d ", solution[s]);
 		}
 		printf("\n");
+
+		printf("Multi: 1 ");
 		#endif
 
 		//Orginaltalens produkt
@@ -367,10 +369,19 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		{
 			if (solution[s] == 0)
 				continue;
+			#if VERBOSE
+			gmp_printf("* %Zd ", *nums[s]);
+			#endif
 
 			mpz_mul(ret1, ret1, *nums[s]);
 		}
 		mpz_sqrt(ret1, ret1);
+
+		#if VERBOSE
+		gmp_printf(" = %Zd \n", ret1);
+		printf("Multi: 1 ");
+		#endif
+
 
 		//Orginalfaktorernas produkt
 		mpz_set_ui(tmp,1);
@@ -379,10 +390,18 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		{
 			if (solution[s] == 0)
 				continue;
+
+			
+
 			mpz_add_ui(tmp, sqrtN, (OGindexes[s]+1));
+			#if VERBOSE
+			gmp_printf("* %Zd ", tmp);
+			#endif
 			mpz_mul(ret2, ret2, tmp);
 		}
-		
+		#if VERBOSE
+		gmp_printf(" = %Zd \n", ret2);
+		#endif
 
 		//tmp save
 		mpz_set(tmp, ret1);
