@@ -122,18 +122,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	// Time for some gauss!
 
-	#if VERBOSE
-	printf("\nComplete bit matrix:\n\n");
-	for(int column = 0; column < good_primes_count; column++)
-	{
-		for(int row = 0; row < num_sieved_count; row++)
-		{
-			printf("%d ", bit_matrix[column][row]);
-		}
-		printf("\n");
-	}
-	#endif
-
 	// If we have an overdetermined matrix, we must fail.
 	if (good_primes_count > number_count)
 	{
@@ -291,9 +279,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	int unknowns = bit_matrix_width-known;
 
-	mpz_t factors[2 * (1 << unknowns)];
-	int f_cntr = 0;
-
 	// For all 2^unknowns permutations
 	for(int i = 0; i < (1 << unknowns); i++)
 	{
@@ -404,33 +389,16 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		mpz_gcd(ret2, ret2, num);
 
 		// Try to store the factors
-		add_possible_factor_to_array(ret1, num, factors, f_cntr++);
-		add_possible_factor_to_array(ret2, num, factors, f_cntr++);
-	}
-
-	#if VERBOSE
-	printf("\nStoring result...\n");
-	#endif
-	// "return" the result
-	for(int i = 0; i < f_cntr; i++)
-	{
-		mpz_t * m = malloc(sizeof(mpz_t));
-
-		#if VERBOSE
-		gmp_printf("m = %Zd\n", factors[i]);
-		#endif
-
-		mpz_init_set(*m, factors[i]);
-		factor_list_add(result, m);
-		mpz_clear(factors[i]);
+		try_adding_factor_to_result(ret1, num, result);
+		try_adding_factor_to_result(ret2, num, result);
 	}
 
 	// Clear our variables!
 	mpz_clear(sqrtN), mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
-	return 0;
+	return 1;
 }
 
-void add_possible_factor_to_array(mpz_t factor, const mpz_t ofNumber, mpz_t array[], int index)
+void try_adding_factor_to_result(mpz_t factor, const mpz_t ofNumber, factor_list ** result)
 {
 	if (mpz_cmp_ui(factor, 1) == 0)
 	{
@@ -442,13 +410,20 @@ void add_possible_factor_to_array(mpz_t factor, const mpz_t ofNumber, mpz_t arra
 	}
 
 	// Has this number been seen before?
-	for(int i = 0; i < index; i++)
-		if (mpz_cmp(array[i], factor) == 0)
+	factor_list * f = *result;
+	while(*(f->value) != NULL)
+	{
+		if (mpz_cmp(factor, *(f->value)) == 0)
 			return;
+
+		f = f->next;
+	}
 
 	#if VERBOSE
 	gmp_printf("Storing factor: %Zd\n", factor);
 	#endif
 
-	mpz_init_set(array[index], factor);
+	mpz_t * m = malloc(sizeof(mpz_t));
+	mpz_init_set(*m, factor);
+	factor_list_add(result, m);
 }
