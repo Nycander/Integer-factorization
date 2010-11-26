@@ -134,10 +134,19 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	}
 	#endif
 
+	// If we have an overdetermined matrix, we must fail.
+	if (good_primes_count > number_count)
+	{
+		#if VERBOSE
+		printf("\n!!!! We have an overdetermined matrix with %d equations and %d unknowns !!! \n", good_primes_count, number_count);
+		#endif
+		return 0;
+	}
 
 	// Initialize the real bit matrix
 	unsigned int bit_matrix_width = number_count;
 	unsigned int bit_matrix_height = good_primes_count;
+
 	#if VERBOSE
 		printf("\nMatrix will be %d x %d\n", bit_matrix_width, bit_matrix_height);
 	#endif
