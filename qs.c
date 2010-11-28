@@ -15,7 +15,6 @@ int smoothnessBound = 500;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
-
 	mpz_t number_result;
 	mpz_init_set(number_result, num);
 
@@ -42,7 +41,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		mpz_t sqrtN, tmp, mod,ret1, ret2;
 		mpz_init(sqrtN), mpz_init(tmp), mpz_init(ret1), mpz_init(ret2), mpz_init(mod);
 		mpz_sqrt(sqrtN, num);
-		
+
 		// Time to find good prime numbers! :D
 
 		// Find relevant primes to divide the numbers with
@@ -303,6 +302,9 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 		int unknowns = bit_matrix_width-known;
 
+		mpz_t visited[16];
+		int v_ptr = 0;
+
 		// For all 2^unknowns permutations
 		for(int i = 0; i < (1 << unknowns); i++)
 		{
@@ -396,14 +398,32 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			mpz_gcd(ret2, ret2, num);
 
 			// Try to store the factors
-			if(try_adding_factor_to_result(ret1, number_result, result)){
-				mpz_divexact(number_result, number_result, ret1);
+			if(try_adding_factor_to_result(result, ret1, number_result, visited, v_ptr))
+			{
+				mpz_init_set(visited[v_ptr++], ret1);
+			}
+
+			if (v_ptr == 16)
+			{
 				break;
 			}
-			if(try_adding_factor_to_result(ret2, number_result, result)){
-				mpz_divexact(number_result, number_result, ret2);
+
+			if(try_adding_factor_to_result(result, ret2, number_result, visited, v_ptr))
+			{
+				mpz_init_set(visited[v_ptr++], ret2);
+			}
+
+			if (v_ptr == 16)
+			{
 				break;
 			}
+		}
+
+		// Divide THE number with our found factors
+		for(int i = 0; i < v_ptr; i++)
+		{
+			mpz_divexact(number_result, number_result, visited[i]);
+			mpz_clear(visited[i]);
 		}
 
 		// Clear our variables!
@@ -413,7 +433,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	return 1;
 }
 
-int try_adding_factor_to_result(mpz_t factor, const mpz_t ofNumber, factor_list ** result)
+int try_adding_factor_to_result(factor_list ** result, mpz_t factor, const mpz_t ofNumber, mpz_t visited[], int visited_length)
 {
 	if (mpz_cmp_ui(factor, 1) == 0)
 	{
@@ -423,6 +443,12 @@ int try_adding_factor_to_result(mpz_t factor, const mpz_t ofNumber, factor_list 
 	{
 		return 0;
 	}
+	for(int i = 0; i < visited_length; i++)
+	{
+		if (mpz_cmp(visited[i], factor) == 0)
+			return 0;
+	}
+
 
 	#if VERBOSE
 	gmp_printf("Storing factor: %Zd\n", factor);
