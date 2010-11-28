@@ -26,7 +26,12 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	int ln_n = M_LN2 * (double)num_size;
 
 	smoothnessBound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
+
+	#if VERBOSE
+	printf("\n Chosen smoothnessBound to %d \n", smoothnessBound);
+	#endif
 	/**/
+	
 	mpz_t number_result;
 	mpz_init_set(number_result, num);
 
@@ -80,7 +85,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				#endif
 			}
 		}
-		int num_sieved_count = good_primes_count+1;
+		int num_sieved_count = good_primes_count+2;
 
 		#if VERBOSE
 		printf("Found %d good primes for trial division.\n ", good_primes_count);
