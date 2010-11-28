@@ -25,6 +25,10 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	smoothnessBound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
 
+	#if VERBOSE
+	printf("\n Chosen smoothnessBound to %d \n", smoothnessBound);
+	#endif
+
 	mpz_t number_result;
 	mpz_init_set(number_result, num);
 
