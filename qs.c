@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <gmp.h>
 #include <limits.h>
+#include <math.h>
 
 #include "qs.h"
 
@@ -17,7 +18,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
 
 	int num_size = mpz_sizeinbase(num, 2);
-	ln_n = M_LN2 * (double)num_size;
+	int ln_n = M_LN2 * (double)num_size;
 
 	smoothnessBound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
 
