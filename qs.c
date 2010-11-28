@@ -31,7 +31,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	printf("\n Chosen smoothnessBound to %d \n", smoothnessBound);
 	#endif
 	/**/
-	
+
 	mpz_t number_result;
 	mpz_init_set(number_result, num);
 
@@ -379,7 +379,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			printf("Solution array: ");
 			for(int s = 0; s < bit_matrix_width; s++)
 			{
-				printf("%d ", solution[s]);
+				printf("%d", solution[s]);
 			}
 			printf("\n ");
 			#endif
