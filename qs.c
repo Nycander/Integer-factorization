@@ -10,6 +10,10 @@
 #include "settings.h"
 #include "primes.h"
 
+#define GOODPRIME_VERBOSE 0
+#define SIEVE_VERBOSE 0
+#define MATRIX_VERBOSE 0
+
 int smoothnessBound = 500;
 
 // TEH EPIC QUADRATIC SIEVE!
@@ -41,7 +45,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		}
 
 		#if VERBOSE
-		gmp_printf("\nFactoring the number %Zd ...\n\n", number_result);
+		gmp_printf("\n :: Factoring the number %Zd using QS: \n\n", number_result);
 		#endif
 
 		mpz_t sqrtN, tmp, mod,ret1, ret2;
@@ -55,7 +59,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			good_primes[0] = 2;
 		int good_primes_count = 1;
 
-		#if VERBOSE
+		#if VERBOSE && GOODPRIME_VERBOSE
 		printf("Finding good primes: \n\t2\n");
 		#endif
 
@@ -69,15 +73,18 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				good_primes[good_primes_count] = primes[i];
 				good_primes_count++;
 
-				#if VERBOSE
+				#if VERBOSE && GOODPRIME_VERBOSE
 				printf("\t%d\n", primes[i]);
 				#endif
 			}
 		}
 		int num_sieved_count = good_primes_count+16;
 
-
 		#if VERBOSE
+		printf("Found %d good primes for trial division.\n", good_primes_count);
+		#endif
+
+		#if VERBOSE && MATRIX_VERBOSE
 		printf("Initializing bit matrix...\n");
 		#endif
 
@@ -91,14 +98,13 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			}
 		}
 
-
 		// Find the good prime numbers
 		mpz_t nums[num_sieved_count];
 		int number_count = 0;
 		int OGindexes[num_sieved_count];
 
 		#if VERBOSE
-		gmp_printf("Sieving numbers starting at %Zd...\n", sqrtN);
+		gmp_printf("Finding %d numbers which we can factor by trial division using our good primes... \n", num_sieved_count);
 		#endif
 
 		// Generate numbers
@@ -122,13 +128,9 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 					if (mpz_cmp_ui(tmp, 1) == 0)
 					{
-
 						bit_matrix[p][number_count] = (bit_matrix[p][number_count]+1) & (char)1;
 						mpz_init_set(nums[number_count], smoothNumCand);
 						OGindexes[number_count++] = i;
-						#if VERBOSE
-						gmp_printf("Storing: %Zd \n", nums[number_count-1]);
-						#endif
 						break;
 					}
 					else
@@ -137,6 +139,14 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 					}
 				}
 			}
+
+			#if VERBOSE && GOODPRIME_VERBOSE
+			if (mpz_cmp_ui(tmp, 1) == 0)
+				gmp_printf("%Zd : OK!\n", nums[number_count-1]);
+			else
+				gmp_printf("%Zd : Useless, could only factor to %Zd\n", smoothNumCand, tmp);
+			#endif
+
 			mpz_clear(smoothNumCand);
 		}
 
