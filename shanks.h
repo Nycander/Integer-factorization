@@ -2,8 +2,7 @@
 #define SHANKS_H
 
 #include <gmp.h>
-#include "factor_list.h"
 
-int shanks_tonelli();
+mpz_t shanks_tonelli();
 
 #endif
