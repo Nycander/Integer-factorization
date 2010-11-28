@@ -80,7 +80,9 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 					mpz_clear(tmp2);
 					mpz_clear(tmp);
 					mpz_clear(*R);
-					return &prime;
+					mpz_t * fail = malloc(sizeof(mpz_t));
+					mpz_set(*fail, prime)
+					return fail;
 				}
 				//Check if t^2^i = 1 mod prime
 				mpz_pow_ui(tmp2, fac2, i);
@@ -112,10 +114,12 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		mpz_clear(tmp2);
 		mpz_clear(tmp);
 		mpz_clear(*R);
-		return &prime;
+		mpz_t * fail = malloc(sizeof(mpz_t));
+		mpz_set(*fail, prime)
+		return fail;
 	}
 	else{
-		return &prime;
+		return fail;
 	}
 	
 }
