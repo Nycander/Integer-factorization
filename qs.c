@@ -119,7 +119,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				if(mpz_divisible_ui_p(tmp, good_primes[p]) != 0)
 				{
 					mpz_divexact_ui(tmp, tmp, good_primes[p]);
-
 					if (mpz_cmp_ui(tmp, 1) == 0)
 					{
 
