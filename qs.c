@@ -10,7 +10,7 @@
 #include "settings.h"
 #include "primes.h"
 
-#define GOODPRIME_VERBOSE 0
+#define GOODPRIME_VERBOSE 1
 #define SIEVE_VERBOSE 0
 #define MATRIX_VERBOSE 0
 
