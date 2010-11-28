@@ -7,7 +7,7 @@
 
 
 //Returns prime if fail otherwise return R satisfying R^2=n mod prime
-mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
+mpz_t * shanks_tonelli(const mpz_t quad_resi, const mpz_t prime){
 	if(mpz_legendre(quad_resi, prime) == 1){
 		mpz_t Q, tmp;
 		mpz_init(Q);
@@ -46,7 +46,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		mpz_init_set_ui(M, S);
 		mpz_powm(c, z, Q, prime);
 		mpz_clear(z);
-		
+
 		mpz_add_ui(tmp, Q,1);
 		mpz_div_ui(tmp,tmp,2);
 		mpz_powm(*R, quad_resi, tmp, prime);
@@ -81,7 +81,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 					mpz_clear(tmp);
 					mpz_clear(*R);
 					mpz_t * fail = malloc(sizeof(mpz_t));
-					mpz_set(*fail, prime);
+					mpz_init_set(*fail, prime);
 					return fail;
 				}
 				//Check if t^2^i = 1 mod prime
@@ -115,13 +115,13 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		mpz_clear(tmp);
 		mpz_clear(*R);
 		mpz_t * fail = malloc(sizeof(mpz_t));
-		mpz_set(*fail, prime);
+		mpz_init_set(*fail, prime);
 		return fail;
 	}
 	else{
 		mpz_t * fail = malloc(sizeof(mpz_t));
-		mpz_set(*fail, prime);
+		mpz_init_set(*fail, prime);
 		return fail;
 	}
-	
+
 }

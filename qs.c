@@ -9,11 +9,12 @@
 #include "pollard.h"
 #include "settings.h"
 #include "primes.h"
+#include "shanks.h"
 
-#define GOODPRIME_VERBOSE 0
-#define SIEVE_VERBOSE 0
+#define GOODPRIME_VERBOSE 1
+#define SIEVE_VERBOSE 1
 #define MATRIX_VERBOSE 0
-#define SOLUTION_ARRAY_VERBOSE 0
+#define SOLUTION_ARRAY_VERBOSE 1
 
 int smoothnessBound = 500;
 
@@ -60,30 +61,31 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	// Time to find good prime numbers! :D
 
 	// Find relevant primes to divide the numbers with
-	int good_primes[smoothnessBound];
-		good_primes[0] = 2;
-	int good_primes_count = 1;
+	mpz_t good_primes[smoothnessBound];
+	int good_primes_count = 0;
 
 	#if VERBOSE && GOODPRIME_VERBOSE
-	printf("Finding good primes: \n \t2\n ");
+	printf("Finding good primes: \n ");
 	#endif
 
-	for(unsigned int i = 1; mpz_cmp_ui(num, primes[i]) > 0 && i < smoothnessBound; i++)
+	mpz_t prime;
+	mpz_init_set_ui(prime, 3);
+	for(unsigned int i = 0; mpz_cmp(num, prime) > 0 && i < smoothnessBound; i++)
 	{
-		mpz_set_ui (mod, primes[i]);
-		mpz_powm_ui (tmp, num, (primes[i]-1)/2, mod);
-
-		if(mpz_cmp_ui(tmp, 1) == 0)
+		if(mpz_legendre(num, prime) == 1)
 		{
-			good_primes[good_primes_count] = primes[i];
+			mpz_init_set(good_primes[good_primes_count], prime);
 			good_primes_count++;
 
 			#if VERBOSE && GOODPRIME_VERBOSE
-			printf("\t%d\n ", primes[i]);
+			gmp_printf("\t%Zd\n ", prime);
 			#endif
 		}
+		mpz_nextprime(prime, prime);
 	}
-	int num_sieved_count = good_primes_count+2;
+	mpz_clear(prime);
+
+	int num_sieved_count = good_primes_count+1;
 
 	#if VERBOSE
 	printf("Found %d good primes for trial division.\n ", good_primes_count);
@@ -105,58 +107,57 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	// Find the good prime numbers
 	mpz_t nums[num_sieved_count];
-	int number_count = 0;
-	int OGindexes[num_sieved_count];
+	mpz_t nums_p[num_sieved_count];
+	int num_index = 0;
 
 	#if VERBOSE
-	gmp_printf("Finding %d numbers which we can factor by trial division using our good primes... \n ", num_sieved_count);
+	gmp_printf("Finding %d numbers which satisfies the relation a^2 = %Zd (mod good_prime) \n ", num_sieved_count, num);
 	#endif
 
 	// Generate numbers
-	for(unsigned int i = 0; num_sieved_count > number_count; i++)
+	int p = 0;
+	for(unsigned int i = 0; num_index < num_sieved_count; i++, p++)
 	{
-		mpz_t smoothNumCand;
-		mpz_init(smoothNumCand);
+		mpz_t * smooth_candidate = shanks_tonelli(num, good_primes[i]);
 
-		mpz_add_ui(sqrtN, sqrtN, 1);
-		mpz_mul(tmp, sqrtN, sqrtN);
-
-		mpz_sub(smoothNumCand,tmp,num);
-		mpz_set(tmp, smoothNumCand);
-
-		// Let the trial division commence!
-		for(unsigned int p = 0; p < good_primes_count; p++)
+		if (mpz_cmp(*smooth_candidate, good_primes[i]) == 0)
 		{
-			if(mpz_divisible_ui_p(tmp, good_primes[p]) != 0)
-			{
-				mpz_divexact_ui(tmp, tmp, good_primes[p]);
-				if (mpz_cmp_ui(tmp, 1) == 0)
-				{
-					bit_matrix[p][number_count] = (bit_matrix[p][number_count]+1) & (char)1;
-					mpz_init_set(nums[number_count], smoothNumCand);
-					OGindexes[number_count++] = i;
-					break;
-				}
-				else
-				{
-					--p;
-				}
-			}
-		}
-
-		#if VERBOSE && SIEVE_VERBOSE && GOODPRIME_VERBOSE
-		if (mpz_cmp_ui(tmp, 1) == 0)
-		{
-			gmp_printf("%Zd : OK!\n ", smoothNumCand);
+			#if VERBOSE && SIEVE_VERBOSE
+			gmp_printf(" %Zd ^2 = %Zd (mod %Zd): Useless, could not run Tonelli-Shanks?\n", smooth_candidate, num, good_primes[i]);
+			#endif
+			continue;
 		}
 		else
 		{
-			gmp_printf("%Zd : Useless, could only factor to %Zd\n ", smoothNumCand, tmp);
-		}
-		#endif
 
-		mpz_clear(smoothNumCand);
+			#if VERBOSE && SIEVE_VERBOSE
+			gmp_printf(" %Zd ^2 = %Zd (mod %Zd) : OK!\n", smooth_candidate, num, good_primes[i]);
+			#endif
+
+			bit_matrix[p][num_index] = bit_matrix[p][num_index]^1;
+			mpz_init_set(nums[num_index], *smooth_candidate);
+			mpz_init_set(nums_p[num_index], good_primes[i]);
+			num_index++;
+
+			mpz_t r;
+			mpz_init(r);
+			mpz_sub(r, good_primes[i], *smooth_candidate);
+
+			#if VERBOSE && SIEVE_VERBOSE
+			gmp_printf(" %Zd = %Zd - %Zd : OK!\n", r, *smooth_candidate, good_primes[i]);
+			#endif
+
+			bit_matrix[p][num_index] = bit_matrix[p][num_index]^1;
+			mpz_init_set(nums[num_index], r);
+			mpz_init_set(nums_p[num_index], good_primes[i]);
+			num_index++;
+		}
+
+		mpz_clear(*smooth_candidate);
+		free(smooth_candidate);
 	}
+
+	int number_count = num_index;
 
 	#if VERBOSE
 	printf("\n Found the following numbers: ");
@@ -331,8 +332,13 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	mpz_t visited[visited_threshold];
 	int v_ptr = 0;
 
+	mpz_t permutations_of_unknowns;
+	mpz_ui_pow_ui(permutations_of_unknowns, 2, unknowns);
+
+
 	// For all 2^unknowns permutations
-	for(int i = 0; i < (1 << unknowns); i++)
+	mpz_t i;
+	for(mpz_init_set_ui(i, 1); mpz_cmp(i, permutations_of_unknowns) < 0; mpz_add_ui(i, i, 1))
 	{
 		// Idea: i can be used with masks to get the current value of the unknowns.
 		char solution[bit_matrix_width];
@@ -343,7 +349,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		{
 			if (knownIndexes[s] != s)
 			{
-				solution[s] = (i & (1 << unknown_cntr)) >> unknown_cntr;
+				solution[s] = (char)mpz_tstbit(i, unknown_cntr);
 				unknown_cntr++;
 			}
 			else
@@ -399,16 +405,13 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		mpz_sqrt(ret1, ret1);
 
 		//Orginalfaktorernas produkt
-		mpz_set_ui(tmp,1);
 		mpz_set_ui(ret2,1);
-		mpz_sqrt(sqrtN, num);
 		for(int s = 0; s < bit_matrix_width; s++)
 		{
 			if (solution[s] == 0)
 				continue;
 
-			mpz_add_ui(tmp, sqrtN, (OGindexes[s]+1));
-			mpz_mul(ret2, ret2, tmp);
+			mpz_mul(ret2, ret2, nums_p[s]);
 		}
 
 		//tmp save
