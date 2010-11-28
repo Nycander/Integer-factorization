@@ -7,12 +7,13 @@
 
 
 //Returns prime if fail otherwise return R satisfying R^2=n mod prime
-mpz_t shanks_tonelli(mpz_t prime, mpz_t quad_resi){
+mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 	if(mpz_legendre(quad_resi, prime) == 1){
-		mpz_t Q, tmp,R;
+		mpz_t Q, tmp;
 		mpz_init(Q);
 		mpz_init(tmp);
-		mpz_init(R);
+		mpz_t * R = malloc(sizeof(mpz_t));
+		mpz_init(*R);
 		mpz_sub_ui(Q, prime, 1);
 		unsigned int S = 0;
 
@@ -24,7 +25,7 @@ mpz_t shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		if(S == 1){
 			mpz_add(tmp, prime, 1);
 			mpz_div_q_ui(tmp,tmp,4);
-			mpz_powm(R,quad_resi,tmp,prime);
+			mpz_powm(*R,quad_resi,tmp,prime);
 			mpz_clear(tmp);
 			mpz_clear(Q);
 			return R;
@@ -48,8 +49,8 @@ mpz_t shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		
 		mpz_add_ui(tmp, Q,1);
 		mpz_div_ui(tmp,tmp,2);
-		mpz_powm(R, quad_resi, tmp, prime);
-		
+		mpz_powm(*R, quad_resi, tmp, prime);
+
 		mpz_powm(t, quad_resi, Q);
 
 		mpz_clear(Q);
@@ -78,8 +79,8 @@ mpz_t shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 					mpz_clear(fac2);
 					mpz_clear(tmp2);
 					mpz_clear(tmp);
-					mpz_clear(R);
-					return prime;
+					mpz_clear(*R);
+					return &prime;
 				}
 				//Check if t^2^i = 1 mod prime
 				mpz_pow_ui(tmp2, fac2, tmp);
@@ -91,7 +92,7 @@ mpz_t shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 					mpz_powm(tmp2, fac2, tmp2,prime); //MAY INTRODUCE BUG
 					mpz_powm(b, c, tmp2, prime);
 					// R = R*b
-					mpz_mul(R,R,b);
+					mpz_mul(*R,*R,b);
 					// t = t*b^2
 					mpz_pow_ui(tmp2, b,2);
 					mpz_mul(t,t,tmp2);
@@ -110,11 +111,11 @@ mpz_t shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		mpz_clear(fac2);
 		mpz_clear(tmp2);
 		mpz_clear(tmp);
-		mpz_clear(R);
-		return prime;
+		mpz_clear(*R);
+		return &prime;
 	}
 	else{
-		return prime;
+		return &prime;
 	}
 	
 }
