@@ -10,10 +10,10 @@
 #include "settings.h"
 #include "primes.h"
 
-#define GOODPRIME_VERBOSE 1
-#define SIEVE_VERBOSE 1
-#define MATRIX_VERBOSE 1
-#define SOLUTION_ARRAY_VERBOSE 1
+#define GOODPRIME_VERBOSE 0
+#define SIEVE_VERBOSE 0
+#define MATRIX_VERBOSE 0
+#define SOLUTION_ARRAY_VERBOSE 0
 
 int smoothnessBound = 500;
 
@@ -35,161 +35,257 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	mpz_t number_result;
 	mpz_init_set(number_result, num);
 
-	while(mpz_cmp_ui(number_result,1) != 0){
+	// Numbers below 2 should not be factored.
+	if (mpz_cmp_ui(number_result, 1) <= 0)
+	{
+		return 1;
+	}
+	// Base case: we have a prime number
+	else if (mpz_probab_prime_p(number_result, 10))
+	{
+		mpz_t * v = malloc(sizeof(mpz_t));
+		mpz_init_set(*v, number_result);
+		factor_list_add(result, v);
+		return 1;
+	}
 
-		// Numbers below 2 should not be factored.
-		if (mpz_cmp_ui(number_result, 1) <= 0)
+	#if VERBOSE
+	gmp_printf("\n :: Factoring the number %Zd using QS: \n \n ", number_result);
+	#endif
+
+	mpz_t sqrtN, tmp, mod,ret1, ret2;
+	mpz_init(sqrtN), mpz_init(tmp), mpz_init(ret1), mpz_init(ret2), mpz_init(mod);
+	mpz_sqrt(sqrtN, num);
+
+	// Time to find good prime numbers! :D
+
+	// Find relevant primes to divide the numbers with
+	int good_primes[smoothnessBound];
+		good_primes[0] = 2;
+	int good_primes_count = 1;
+
+	#if VERBOSE && GOODPRIME_VERBOSE
+	printf("Finding good primes: \n \t2\n ");
+	#endif
+
+	for(unsigned int i = 1; mpz_cmp_ui(num, primes[i]) > 0 && i < smoothnessBound; i++)
+	{
+		mpz_set_ui (mod, primes[i]);
+		mpz_powm_ui (tmp, num, (primes[i]-1)/2, mod);
+
+		if(mpz_cmp_ui(tmp, 1) == 0)
 		{
-			return 1;
+			good_primes[good_primes_count] = primes[i];
+			good_primes_count++;
+
+			#if VERBOSE && GOODPRIME_VERBOSE
+			printf("\t%d\n ", primes[i]);
+			#endif
 		}
-		// Base case: we have a prime number
-		else if (mpz_probab_prime_p(number_result, 10))
+	}
+	int num_sieved_count = good_primes_count+2;
+
+	#if VERBOSE
+	printf("Found %d good primes for trial division.\n ", good_primes_count);
+	#endif
+
+	#if VERBOSE && MATRIX_VERBOSE
+	printf("Initializing bit matrix...\n ");
+	#endif
+
+	// Initialize bit matrix
+	char bit_matrix[good_primes_count][num_sieved_count];
+	for(int i = 0; i < good_primes_count; i++)
+	{
+		for(int j = 0; j < num_sieved_count; j++)
 		{
-			mpz_t * v = malloc(sizeof(mpz_t));
-			mpz_init_set(*v, number_result);
-			factor_list_add(result, v);
-			return 1;
+			bit_matrix[i][j] = 0;
 		}
+	}
 
-		#if VERBOSE
-		gmp_printf("\n :: Factoring the number %Zd using QS: \n \n ", number_result);
-		#endif
+	// Find the good prime numbers
+	mpz_t nums[num_sieved_count];
+	int number_count = 0;
+	int OGindexes[num_sieved_count];
 
-		mpz_t sqrtN, tmp, mod,ret1, ret2;
-		mpz_init(sqrtN), mpz_init(tmp), mpz_init(ret1), mpz_init(ret2), mpz_init(mod);
-		mpz_sqrt(sqrtN, num);
+	#if VERBOSE
+	gmp_printf("Finding %d numbers which we can factor by trial division using our good primes... \n ", num_sieved_count);
+	#endif
 
-		// Time to find good prime numbers! :D
+	// Generate numbers
+	for(unsigned int i = 0; num_sieved_count > number_count; i++)
+	{
+		mpz_t smoothNumCand;
+		mpz_init(smoothNumCand);
 
-		// Find relevant primes to divide the numbers with
-		int good_primes[smoothnessBound];
-			good_primes[0] = 2;
-		int good_primes_count = 1;
+		mpz_add_ui(sqrtN, sqrtN, 1);
+		mpz_mul(tmp, sqrtN, sqrtN);
 
-		#if VERBOSE && GOODPRIME_VERBOSE
-		printf("Finding good primes: \n \t2\n ");
-		#endif
+		mpz_sub(smoothNumCand,tmp,num);
+		mpz_set(tmp, smoothNumCand);
 
-		for(unsigned int i = 1; mpz_cmp_ui(num, primes[i]) > 0 && i < smoothnessBound; i++)
+		// Let the trial division commence!
+		for(unsigned int p = 0; p < good_primes_count; p++)
 		{
-			mpz_set_ui (mod, primes[i]);
-			mpz_powm_ui (tmp, num, (primes[i]-1)/2, mod);
-
-			if(mpz_cmp_ui(tmp, 1) == 0)
+			if(mpz_divisible_ui_p(tmp, good_primes[p]) != 0)
 			{
-				good_primes[good_primes_count] = primes[i];
-				good_primes_count++;
-
-				#if VERBOSE && GOODPRIME_VERBOSE
-				printf("\t%d\n ", primes[i]);
-				#endif
-			}
-		}
-		int num_sieved_count = good_primes_count+2;
-
-		#if VERBOSE
-		printf("Found %d good primes for trial division.\n ", good_primes_count);
-		#endif
-
-		#if VERBOSE && MATRIX_VERBOSE
-		printf("Initializing bit matrix...\n ");
-		#endif
-
-		// Initialize bit matrix
-		char bit_matrix[good_primes_count][num_sieved_count];
-		for(int i = 0; i < good_primes_count; i++)
-		{
-			for(int j = 0; j < num_sieved_count; j++)
-			{
-				bit_matrix[i][j] = 0;
-			}
-		}
-
-		// Find the good prime numbers
-		mpz_t nums[num_sieved_count];
-		int number_count = 0;
-		int OGindexes[num_sieved_count];
-
-		#if VERBOSE
-		gmp_printf("Finding %d numbers which we can factor by trial division using our good primes... \n ", num_sieved_count);
-		#endif
-
-		// Generate numbers
-		for(unsigned int i = 0; num_sieved_count > number_count; i++)
-		{
-			mpz_t smoothNumCand;
-			mpz_init(smoothNumCand);
-
-			mpz_add_ui(sqrtN, sqrtN, 1);
-			mpz_mul(tmp, sqrtN, sqrtN);
-
-			mpz_sub(smoothNumCand,tmp,num);
-			mpz_set(tmp, smoothNumCand);
-
-			// Let the trial division commence!
-			for(unsigned int p = 0; p < good_primes_count; p++)
-			{
-				if(mpz_divisible_ui_p(tmp, good_primes[p]) != 0)
+				mpz_divexact_ui(tmp, tmp, good_primes[p]);
+				if (mpz_cmp_ui(tmp, 1) == 0)
 				{
-					mpz_divexact_ui(tmp, tmp, good_primes[p]);
-					if (mpz_cmp_ui(tmp, 1) == 0)
-					{
-						bit_matrix[p][number_count] = (bit_matrix[p][number_count]+1) & (char)1;
-						mpz_init_set(nums[number_count], smoothNumCand);
-						OGindexes[number_count++] = i;
-						break;
-					}
-					else
-					{
-						--p;
-					}
+					bit_matrix[p][number_count] = (bit_matrix[p][number_count]+1) & (char)1;
+					mpz_init_set(nums[number_count], smoothNumCand);
+					OGindexes[number_count++] = i;
+					break;
+				}
+				else
+				{
+					--p;
 				}
 			}
-
-			#if VERBOSE && SIEVE_VERBOSE && GOODPRIME_VERBOSE
-			if (mpz_cmp_ui(tmp, 1) == 0)
-			{
-				gmp_printf("%Zd : OK!\n ", smoothNumCand);
-			}
-			else
-			{
-				gmp_printf("%Zd : Useless, could only factor to %Zd\n ", smoothNumCand, tmp);
-			}
-			#endif
-
-			mpz_clear(smoothNumCand);
 		}
 
-		#if VERBOSE
-		printf("\n Found the following numbers: ");
-		for(int i = 0; i < number_count; i++)
+		#if VERBOSE && SIEVE_VERBOSE && GOODPRIME_VERBOSE
+		if (mpz_cmp_ui(tmp, 1) == 0)
 		{
-			gmp_printf("%Zd ", nums[i]);
+			gmp_printf("%Zd : OK!\n ", smoothNumCand);
 		}
-		printf("\n ");
-
-		printf("\n Will now solve the system of equations built from the factors...\n ");
+		else
+		{
+			gmp_printf("%Zd : Useless, could only factor to %Zd\n ", smoothNumCand, tmp);
+		}
 		#endif
 
-		// Time for some gauss!
+		mpz_clear(smoothNumCand);
+	}
 
-		// If we have an overdetermined matrix, we must fail.
-		if (good_primes_count > number_count)
+	#if VERBOSE
+	printf("\n Found the following numbers: ");
+	for(int i = 0; i < number_count; i++)
+	{
+		gmp_printf("%Zd ", nums[i]);
+	}
+	printf("\n ");
+
+	printf("\n Will now solve the system of equations built from the factors...\n ");
+	#endif
+
+	// Time for some gauss!
+
+	// If we have an overdetermined matrix, we must fail.
+	if (good_primes_count > number_count)
+	{
+		#if VERBOSE
+		printf("\n !!!! We have an overdetermined matrix with %d equations and %d unknowns !!! \n ", good_primes_count, number_count);
+		#endif
+		return 0;
+	}
+
+	// Initialize the real bit matrix
+	unsigned int bit_matrix_width = number_count;
+	unsigned int bit_matrix_height = good_primes_count;
+
+	#if VERBOSE
+	printf("\n Matrix is of size %d x %d\n ", bit_matrix_width, bit_matrix_height);
+
+	#if MATRIX_VERBOSE
+	for(int column = 0; column < bit_matrix_height; column++)
+	{
+		for(int row = 0; row < bit_matrix_width; row++)
 		{
-			#if VERBOSE
-			printf("\n !!!! We have an overdetermined matrix with %d equations and %d unknowns !!! \n ", good_primes_count, number_count);
-			#endif
-			return 0;
+			printf("%d", bit_matrix[column][row]);
+		}
+		printf("\n ");
+	}
+	#endif
+	#endif
+
+	// Gauss elimination
+	for(int column = 0, row = 0; column < bit_matrix_width; column++, row++)
+	{
+		#if VERBOSE && MATRIX_VERBOSE
+		printf("\n \tLooking at column %d and row %d in matrix:\n ", column, row);
+
+		if (bit_matrix_height < 100 && bit_matrix_width < 100)
+		{
+			for(int column = 0; column < bit_matrix_height; column++)
+			{
+				printf("\t");
+				for(int row = 0; row < bit_matrix_width; row++)
+				{
+					printf("%d", bit_matrix[column][row]);
+				}
+				printf("\n ");
+			}
+			printf("\n ");
+		}
+		#endif
+
+		// Find first 1 in column
+		int maxRow = row;
+		while(maxRow < bit_matrix_height-1)
+		{
+			if (bit_matrix[maxRow][column] == 1)
+				break;
+
+			maxRow++;
 		}
 
-		// Initialize the real bit matrix
-		unsigned int bit_matrix_width = number_count;
-		unsigned int bit_matrix_height = good_primes_count;
+		// If we couldn't find a 1
+		if (bit_matrix[maxRow][column] == 0)
+		{
+			row--;
+			continue;
+		}
 
-		#if VERBOSE
-		printf("\n Matrix is of size %d x %d\n ", bit_matrix_width, bit_matrix_height);
+		#if VERBOSE && MATRIX_VERBOSE
+		printf("\tFound a 1 on row %d\n ", maxRow);
+		#endif
 
-		#if MATRIX_VERBOSE
+		// If we must replace the largest row to the top, swap them.
+		if (maxRow != row)
+		{
+			#if VERBOSE && MATRIX_VERBOSE
+			printf("\tSwapping rows %d and %d...\n ", row, maxRow);
+			#endif
+
+			// Swap row i and maxColumn
+			char tmp[num_sieved_count];
+			for(int c = 0; c < bit_matrix_width; c++)
+			{
+				tmp[c] = bit_matrix[row][c];
+				bit_matrix[row][c] = bit_matrix[maxRow][c];
+				bit_matrix[maxRow][c] = tmp[c];
+			}
+		}
+
+		#if VERBOSE && MATRIX_VERBOSE
+		printf("\tXOR-ing row %d with rows... ", row);
+		#endif
+
+		// Make sure all rows below this row has an initial zero.
+		for(int r = row+1; r < bit_matrix_height; r++)
+		{
+			if (bit_matrix[r][column] == 0)
+				continue;
+
+			#if VERBOSE && MATRIX_VERBOSE
+			printf("%d ", r);
+			#endif
+
+			// Subtract bit_matrix[k][row] * bit_matrix[column] from bit_matrix[k]
+			for(int c = 0; c < bit_matrix_width; c++)
+			{
+				bit_matrix[r][c] = bit_matrix[r][c] ^ bit_matrix[row][c];
+			}
+		}
+		#if VERBOSE && MATRIX_VERBOSE
+		printf("\n ");
+		#endif
+	}
+	#if VERBOSE && MATRIX_VERBOSE
+	if (bit_matrix_height < 100 && bit_matrix_width < 100)
+	{
+		printf("\n After gauss:\n \n ");
 		for(int column = 0; column < bit_matrix_height; column++)
 		{
 			for(int row = 0; row < bit_matrix_width; row++)
@@ -198,304 +294,224 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			}
 			printf("\n ");
 		}
-		#endif
-		#endif
-
-		// Gauss elimination
-		for(int column = 0, row = 0; column < bit_matrix_width; column++, row++)
-		{
-			#if VERBOSE && MATRIX_VERBOSE
-			printf("\n \tLooking at column %d and row %d in matrix:\n ", column, row);
-
-			if (bit_matrix_height < 100 && bit_matrix_width < 100)
-			{
-				for(int column = 0; column < bit_matrix_height; column++)
-				{
-					printf("\t");
-					for(int row = 0; row < bit_matrix_width; row++)
-					{
-						printf("%d", bit_matrix[column][row]);
-					}
-					printf("\n ");
-				}
-				printf("\n ");
-			}
-			#endif
-
-			// Find first 1 in column
-			int maxRow = row;
-			while(maxRow < bit_matrix_height-1)
-			{
-				if (bit_matrix[maxRow][column] == 1)
-					break;
-
-				maxRow++;
-			}
-
-			// If we couldn't find a 1
-			if (bit_matrix[maxRow][column] == 0)
-			{
-				row--;
-				continue;
-			}
-
-			#if VERBOSE && MATRIX_VERBOSE
-			printf("\tFound a 1 on row %d\n ", maxRow);
-			#endif
-
-			// If we must replace the largest row to the top, swap them.
-			if (maxRow != row)
-			{
-				#if VERBOSE && MATRIX_VERBOSE
-				printf("\tSwapping rows %d and %d...\n ", row, maxRow);
-				#endif
-
-				// Swap row i and maxColumn
-				char tmp[num_sieved_count];
-				for(int c = 0; c < bit_matrix_width; c++)
-				{
-					tmp[c] = bit_matrix[row][c];
-					bit_matrix[row][c] = bit_matrix[maxRow][c];
-					bit_matrix[maxRow][c] = tmp[c];
-				}
-			}
-
-			#if VERBOSE && MATRIX_VERBOSE
-			printf("\tXOR-ing row %d with rows... ", row);
-			#endif
-
-			// Make sure all rows below this row has an initial zero.
-			for(int r = row+1; r < bit_matrix_height; r++)
-			{
-				if (bit_matrix[r][column] == 0)
-					continue;
-
-				#if VERBOSE && MATRIX_VERBOSE
-				printf("%d ", r);
-				#endif
-
-				// Subtract bit_matrix[k][row] * bit_matrix[column] from bit_matrix[k]
-				for(int c = 0; c < bit_matrix_width; c++)
-				{
-					bit_matrix[r][c] = bit_matrix[r][c] ^ bit_matrix[row][c];
-				}
-			}
-			#if VERBOSE && MATRIX_VERBOSE
-			printf("\n ");
-			#endif
-		}
-		#if VERBOSE && MATRIX_VERBOSE
-		if (bit_matrix_height < 100 && bit_matrix_width < 100)
-		{
-			printf("\n After gauss:\n \n ");
-			for(int column = 0; column < bit_matrix_height; column++)
-			{
-				for(int row = 0; row < bit_matrix_width; row++)
-				{
-					printf("%d", bit_matrix[column][row]);
-				}
-				printf("\n ");
-			}
-		}
-		#endif
-
-		int known = 0;
-		int knownIndexes[bit_matrix_width];
-		for(int i = 0; i < bit_matrix_width; i++)
-			knownIndexes[i] = -1;
-
-		for(int y = 0; y < bit_matrix_height; y++)
-		{
-			int x = 0;
-			while(x < bit_matrix_width)
-			{
-				if (bit_matrix[y][x] == 1)
-				{
-					break;
-				}
-				x++;
-			}
-
-			if (x < bit_matrix_width)
-			{
-				knownIndexes[x] = x;
-				known++;
-			}
-		}
-
-		#if VERBOSE
-		printf("\n We have %d known variables, thus there are %d unknowns.\n ", known, bit_matrix_width-known);
-		#endif
-
-		int unknowns = bit_matrix_width-known;
-
-		mpz_t visited[16];
-		int v_ptr = 0;
-
-		// For all 2^unknowns permutations
-		for(int i = 0; i < (1 << unknowns); i++)
-		{
-			// Idea: i can be used with masks to get the current value of the unknowns.
-			char solution[bit_matrix_width];
-
-			// Fill the unknowns first
-			int unknown_cntr = 0;
-			for(int s = 0; s < bit_matrix_width; s++)
-			{
-				if (knownIndexes[s] != s)
-				{
-					solution[s] = (i & (1 << unknown_cntr)) >> unknown_cntr;
-					unknown_cntr++;
-				}
-				else
-				{
-					solution[s] = -1;
-				}
-			}
-
-			// Fill the knowns bottom up
-			for(int s = bit_matrix_width-1; s >= 0; s--)
-			{
-				if (solution[s] != -1)
-					continue;
-
-				solution[s] = 0;
-
-				// Search the column for the "1" (should be only 1)
-				int row = -1;
-				for(int y = 0; y < bit_matrix_height; y++)
-				{
-					if (bit_matrix[y][s] == 1)
-					{
-						row = y;
-						break;
-					}
-				}
-
-				// Calculate value from equation vector
-				for(int x = s; x < bit_matrix_width; x++)
-				{
-					solution[s] = solution[s] ^ bit_matrix[row][x];
-				}
-			}
-
-			#if VERBOSE && SOLUTION_ARRAY_VERBOSE
-			printf("Solution array: ");
-			for(int s = 0; s < bit_matrix_width; s++)
-			{
-				printf("%d", solution[s]);
-			}
-			printf("\n ");
-			#endif
-
-			//Orginaltalens produkt
-			mpz_set_ui(ret1,1);
-			for(int s = 0; s < bit_matrix_width; s++)
-			{
-				if (solution[s] == 0)
-					continue;
-
-				mpz_mul(ret1, ret1, nums[s]);
-			}
-			mpz_sqrt(ret1, ret1);
-
-			//Orginalfaktorernas produkt
-			mpz_set_ui(tmp,1);
-			mpz_set_ui(ret2,1);
-			mpz_sqrt(sqrtN, num);
-			for(int s = 0; s < bit_matrix_width; s++)
-			{
-				if (solution[s] == 0)
-					continue;
-
-				mpz_add_ui(tmp, sqrtN, (OGindexes[s]+1));
-				mpz_mul(ret2, ret2, tmp);
-			}
-
-			//tmp save
-			mpz_set(tmp, ret1);
-			//num1
-			mpz_add(ret1, ret2, ret1);
-			//num2
-			mpz_sub(ret2, ret2, tmp);
-
-			//factor 1
-			mpz_gcd(ret1, ret1, num);
-			//factor 2
-			mpz_gcd(ret2, ret2, num);
-
-			// Try to store the factors
-			if(try_adding_factor_to_result(result, ret1, number_result, visited, v_ptr))
-			{
-				mpz_init_set(visited[v_ptr++], ret1);
-			}
-
-			if (v_ptr == 16)
-			{
-				break;
-			}
-
-			if(try_adding_factor_to_result(result, ret2, number_result, visited, v_ptr))
-			{
-				mpz_init_set(visited[v_ptr++], ret2);
-			}
-
-			if (v_ptr == 16)
-			{
-				break;
-			}
-		}
-
-		#if VERBOSE
-		gmp_printf("\n Dividing the number %Zd with all found factors... \n \t%Zd", number_result, number_result);
-		#endif
-		// Divide THE number with our found factors
-		for(int i = 0; i < v_ptr; i++)
-		{
-			#if VERBOSE
-			gmp_printf(" / %Zd", visited[i]);
-			#endif
-			mpz_divexact(number_result, number_result, visited[i]);
-			mpz_clear(visited[i]);
-		}
-		#if VERBOSE
-		gmp_printf(" = %Zd\n", number_result);
-		#endif
-
-		// Clear our variables!
-		mpz_clear(sqrtN), mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
 	}
+	#endif
+
+	int known = 0;
+	int knownIndexes[bit_matrix_width];
+	for(int i = 0; i < bit_matrix_width; i++)
+		knownIndexes[i] = -1;
+
+	for(int y = 0; y < bit_matrix_height; y++)
+	{
+		int x = 0;
+		while(x < bit_matrix_width)
+		{
+			if (bit_matrix[y][x] == 1)
+			{
+				break;
+			}
+			x++;
+		}
+
+		if (x < bit_matrix_width)
+		{
+			knownIndexes[x] = x;
+			known++;
+		}
+	}
+
+	#if VERBOSE
+	printf("\n We have %d known variables, thus there are %d unknowns.\n", known, bit_matrix_width-known);
+	#endif
+
+	int unknowns = bit_matrix_width-known;
+
+	int visited_threshold = 8;
+	mpz_t visited[visited_threshold];
+	int v_ptr = 0;
+
+	// For all 2^unknowns permutations
+	for(int i = 0; i < (1 << unknowns); i++)
+	{
+		// Idea: i can be used with masks to get the current value of the unknowns.
+		char solution[bit_matrix_width];
+
+		// Fill the unknowns first
+		int unknown_cntr = 0;
+		for(int s = 0; s < bit_matrix_width; s++)
+		{
+			if (knownIndexes[s] != s)
+			{
+				solution[s] = (i & (1 << unknown_cntr)) >> unknown_cntr;
+				unknown_cntr++;
+			}
+			else
+			{
+				solution[s] = -1;
+			}
+		}
+
+		// Fill the knowns bottom up
+		for(int s = bit_matrix_width-1; s >= 0; s--)
+		{
+			if (solution[s] != -1)
+				continue;
+
+			solution[s] = 0;
+
+			// Search the column for the "1" (should be only 1)
+			int row = -1;
+			for(int y = 0; y < bit_matrix_height; y++)
+			{
+				if (bit_matrix[y][s] == 1)
+				{
+					row = y;
+					break;
+				}
+			}
+
+			// Calculate value from equation vector
+			for(int x = s; x < bit_matrix_width; x++)
+			{
+				solution[s] = solution[s] ^ bit_matrix[row][x];
+			}
+		}
+
+		#if VERBOSE && SOLUTION_ARRAY_VERBOSE
+		printf(" Solution array: ");
+		for(int s = 0; s < bit_matrix_width; s++)
+		{
+			printf("%d", solution[s]);
+		}
+		printf("\n");
+		#endif
+
+		//Orginaltalens produkt
+		mpz_set_ui(ret1,1);
+		for(int s = 0; s < bit_matrix_width; s++)
+		{
+			if (solution[s] == 0)
+				continue;
+
+			mpz_mul(ret1, ret1, nums[s]);
+		}
+		mpz_sqrt(ret1, ret1);
+
+		//Orginalfaktorernas produkt
+		mpz_set_ui(tmp,1);
+		mpz_set_ui(ret2,1);
+		mpz_sqrt(sqrtN, num);
+		for(int s = 0; s < bit_matrix_width; s++)
+		{
+			if (solution[s] == 0)
+				continue;
+
+			mpz_add_ui(tmp, sqrtN, (OGindexes[s]+1));
+			mpz_mul(ret2, ret2, tmp);
+		}
+
+		//tmp save
+		mpz_set(tmp, ret1);
+		//num1
+		mpz_add(ret1, ret2, ret1);
+		//num2
+		mpz_sub(ret2, ret2, tmp);
+
+		//factor 1
+		mpz_gcd(ret1, ret1, num);
+		//factor 2
+		mpz_gcd(ret2, ret2, num);
+
+		// Try to store the factors
+		try_adding_factor_to_result(result, ret1, number_result, visited, &v_ptr);
+		if (v_ptr == visited_threshold)
+		{
+			break;
+		}
+
+		try_adding_factor_to_result(result, ret2, number_result, visited, &v_ptr);
+		if (v_ptr == visited_threshold)
+		{
+			break;
+		}
+	}
+
+	// Clear our variables!
+	mpz_clear(sqrtN), mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
+
 	#if VERBOSE
 	printf(" :: QS over and out.\n\n");
 	#endif
+
 	return 1;
 }
 
-int try_adding_factor_to_result(factor_list ** result, mpz_t factor, const mpz_t ofNumber, mpz_t visited[], int visited_length)
+int try_adding_factor_to_result(factor_list ** result, mpz_t factor, const mpz_t ofNumber, mpz_t visited[], int * visited_length)
 {
 	if (mpz_cmp_ui(factor, 1) == 0)
 	{
 		return 0;
 	}
-	if (mpz_cmp(factor, ofNumber) == 0)
+	if (mpz_cmp(factor, ofNumber) >= 0)
 	{
 		return 0;
 	}
-	for(int i = 0; i < visited_length; i++)
+	for(int i = 0; i < *(visited_length); i++)
 	{
 		if (mpz_cmp(visited[i], factor) == 0)
+		{
 			return 0;
+		}
 	}
 
+	if (mpz_probab_prime_p(factor, 5))
+	{
+		#if VERBOSE
+		gmp_printf(" Found factor %Zd, which is a prime number.\n", factor);
+		#endif
 
-	#if VERBOSE
-	gmp_printf("Storing factor: %Zd, using Pollard's Rho to find the smaller factors.\n ", factor);
-	#endif
+		mpz_t * v = malloc(sizeof(mpz_t));
+		mpz_init_set(*v, factor);
+		factor_list_add(result, v);
 
-	pollard(result, factor);
+		mpz_init_set(visited[*(visited_length)], factor);
+		(*visited_length)++;
+	}
+	else
+	{
+		#if VERBOSE
+		gmp_printf(" Found factor %Zd, using Pollard's Rho to find the prime factors.\n", factor, factor);
+		#endif
+
+		factor_list * pollards_factors = malloc(sizeof(factor_list));
+		pollards_factors->value = NULL;
+		pollards_factors->next = NULL;
+
+		pollard(&pollards_factors, factor);
+
+		#if VERBOSE
+		gmp_printf("\n \t%Zd = {Pollard} = ", factor, factor);
+		#endif
+		// Go through all factors and try to add them
+		while(pollards_factors->value != NULL)
+		{
+			int success = try_adding_factor_to_result(result, *(pollards_factors->value), ofNumber, visited, visited_length);
+
+			#if VERBOSE
+			if (success)
+			{
+				gmp_printf("%Zd %s", *(pollards_factors->value), pollards_factors->next->value == NULL ? "\n" : "* ");
+			}
+			else
+			{
+				gmp_printf("(%Zd) %s", *(pollards_factors->value), pollards_factors->next->value == NULL ? "\n" : "* ");
+			}
+			#endif
+
+			pollards_factors = pollards_factors->next;
+		}
+	}
 
 	return 1;
-	/*mpz_t * m = malloc(sizeof(mpz_t));
-	mpz_init_set(*m, factor);
-	factor_list_add(result, m);*/
 }
