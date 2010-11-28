@@ -11,10 +11,10 @@
 #include "primes.h"
 #include "shanks.h"
 
-#define GOODPRIME_VERBOSE 1
-#define SIEVE_VERBOSE 1
+#define GOODPRIME_VERBOSE 0
+#define SIEVE_VERBOSE 0
 #define MATRIX_VERBOSE 0
-#define SOLUTION_ARRAY_VERBOSE 1
+#define SOLUTION_ARRAY_VERBOSE 0
 
 int smoothnessBound = 500;
 
@@ -51,7 +51,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	}
 
 	#if VERBOSE
-	gmp_printf("\n :: Factoring the number %Zd using QS: \n \n ", number_result);
+	gmp_printf(" :: Factoring the number %Zd using QS: \n \n ", number_result);
 	#endif
 
 	mpz_t sqrtN, tmp, mod,ret1, ret2;
@@ -328,13 +328,13 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	int unknowns = bit_matrix_width-known;
 
-	int visited_threshold = 8;
+	int visited_threshold = 2;
 	mpz_t visited[visited_threshold];
 	int v_ptr = 0;
 
 	mpz_t permutations_of_unknowns;
+	mpz_init(permutations_of_unknowns);
 	mpz_ui_pow_ui(permutations_of_unknowns, 2, unknowns);
-
 
 	// For all 2^unknowns permutations
 	mpz_t i;

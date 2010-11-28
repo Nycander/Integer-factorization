@@ -20,11 +20,24 @@ void factor(mpz_t n)
 	factors->next = NULL;
 
 	#if USE_TRIAL_DIVISION
+
+	#if VERBOSE
+	gmp_printf(" :: Using trial-division with the first %d primes on %Zd...\n\t%Zd", primes_count, n, n);
+	#endif
+
 	// Exhaust trivial primes with trial division
 	n = *trial_division(&factors, primes, primes_count, n);
 
 	#if VERBOSE
-	gmp_printf("\tExhausted trivial primes; n = %Zd\n", n);
+	factor_list * tmp = factors;
+	while(tmp->value != NULL)
+	{
+		gmp_printf(" / %Zd", *(tmp->value));
+		tmp = tmp->next;
+	}
+	gmp_printf(" = %Zd\n", n);
+
+	gmp_printf(" :: Exhausted all trivial primes, the number is now %Zd\n", n);
 	#endif
 	#endif
 
@@ -50,6 +63,7 @@ void factor(mpz_t n)
 			break;
 		}
 
+		mpz_set(n, original_n);
 		factor_list * tmp = factors;
 		while(tmp->value != NULL)
 		{
