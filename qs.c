@@ -78,7 +78,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				#endif
 			}
 		}
-		int num_sieved_count = good_primes_count+16;
+		int num_sieved_count = good_primes_count+10;
 
 		#if VERBOSE
 		printf("Found %d good primes for trial division.\n", good_primes_count);
@@ -125,7 +125,6 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				if(mpz_divisible_ui_p(tmp, good_primes[p]) != 0)
 				{
 					mpz_divexact_ui(tmp, tmp, good_primes[p]);
-
 					if (mpz_cmp_ui(tmp, 1) == 0)
 					{
 						bit_matrix[p][number_count] = (bit_matrix[p][number_count]+1) & (char)1;
