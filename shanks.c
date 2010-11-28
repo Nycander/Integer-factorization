@@ -23,8 +23,8 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		}
 		//If S == 1, R = +- n ^ ((p+1)/4)
 		if(S == 1){
-			mpz_add(tmp, prime, 1);
-			mpz_div_q_ui(tmp,tmp,4);
+			mpz_add_ui(tmp, prime, 1);
+			mpz_cdiv_q_ui(tmp,tmp,4);
 			mpz_powm(*R,quad_resi,tmp,prime);
 			mpz_clear(tmp);
 			mpz_clear(Q);
@@ -51,14 +51,14 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		mpz_div_ui(tmp,tmp,2);
 		mpz_powm(*R, quad_resi, tmp, prime);
 
-		mpz_powm(t, quad_resi, Q);
+		mpz_powm(t, quad_resi, Q, prime);
 
 		mpz_clear(Q);
 		mpz_init_set_ui(tmp2, 0);
 
 		while(true){
 			//t = 1 mod prime
-			if(mpz_cmp(t,1) == 0){
+			if(mpz_cmp_ui(t,1) == 0){
 				mpz_clear(c);
 				mpz_clear(t);
 				mpz_clear(M);
@@ -70,7 +70,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 			}
 			mpz_set(tmp,0);
 			while(true){
-				if(mpz_cmp(tmp,M) == 0)
+				if(mpz_cmp_ui(tmp,M) == 0)
 				{
 					mpz_clear(c);
 					mpz_clear(t);
@@ -85,7 +85,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 				//Check if t^2^i = 1 mod prime
 				mpz_pow_ui(tmp2, fac2, tmp);
 				mpz_powm(tmp2, t, tmp2, prime);
-				if(mpz_compare(tmp2,1)==0){
+				if(mpz_cmp_ui(tmp2,1)==0){
 					// b = c^2^(M-tmp-1)
 					mpz_sub(tmp2,M,tmp);
 					mpz_sub_ui(tmp2,tmp2,1);
