@@ -33,7 +33,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 
 		mpz_t z;
 		mpz_init_set_ui(z, 0);
-		while(mpz_legendre(z, príme) != -1){
+		while((mpz_legendre(z, prime)) != -1){
 			mpz_add_ui(z,z,1);
 		}
 
@@ -55,7 +55,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 
 		mpz_clear(Q);
 		mpz_init_set_ui(tmp2, 0);
-
+		int i;
 		while(1){
 			//t = 1 mod prime
 			if(mpz_cmp_ui(t,1) == 0){
@@ -68,9 +68,9 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 				mpz_clear(tmp);
 				return R;
 			}
-			mpz_set(tmp,0);
+			i=0;
 			while(1){
-				if(mpz_cmp(tmp,M) == 0)
+				if(mpz_cmp_ui(M,i) == 0)
 				{
 					mpz_clear(c);
 					mpz_clear(t);
@@ -83,11 +83,11 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 					return &prime;
 				}
 				//Check if t^2^i = 1 mod prime
-				mpz_pow_ui(tmp2, fac2, tmp);
+				mpz_pow_ui(tmp2, fac2, i);
 				mpz_powm(tmp2, t, tmp2, prime);
 				if(mpz_cmp_ui(tmp2,1)==0){
 					// b = c^2^(M-tmp-1)
-					mpz_sub(tmp2,M,tmp);
+					mpz_sub_ui(tmp2,M,i);
 					mpz_sub_ui(tmp2,tmp2,1);
 					mpz_powm(tmp2, fac2, tmp2,prime); //MAY INTRODUCE BUG
 					mpz_powm(b, c, tmp2, prime);
@@ -98,10 +98,10 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 					mpz_mul(t,t,tmp2);
 					//M = tmp
 					mpz_set(c,tmp2);
-					mpz_set(M,tmp);
+					mpz_set_ui(M,i);
 					break; //Test now
 				}
-				mpz_add_ui(tmp,1); //+1
+				i++;
 			}
 		}
 		mpz_clear(c);
