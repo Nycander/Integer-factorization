@@ -58,14 +58,14 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 		// Time to find good prime numbers! :D
 
-		// Find relevant primes to divide the numbers with
-		int good_primes[smoothnessBound];
-			good_primes[0] = 2;
-		int good_primes_count = 1;
-
 		#if VERBOSE && GOODPRIME_VERBOSE
 		printf("Finding good primes: \n\t2\n");
 		#endif
+
+		// Find relevant primes to divide the numbers with
+		int good_primes[smoothnessBound];
+		good_primes[0] = 2;
+		int good_primes_count = 1;
 
 		for(unsigned int i = 1; mpz_cmp_ui(num, primes[i]) > 0 && i < smoothnessBound; i++)
 		{
