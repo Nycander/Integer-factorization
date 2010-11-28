@@ -12,8 +12,8 @@
 #include "shanks.h"
 
 #define GOODPRIME_VERBOSE 0
-#define SIEVE_VERBOSE 0
-#define MATRIX_VERBOSE 0
+#define SIEVE_VERBOSE 1
+#define MATRIX_VERBOSE 1
 #define SOLUTION_ARRAY_VERBOSE 0
 
 int smoothnessBound = 500;
@@ -22,14 +22,14 @@ int smoothnessBound = 500;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
-	/** /
+	/**/
 	int num_size = mpz_sizeinbase(num, 2);
 	int ln_n = M_LN2 * (double)num_size;
 
 	smoothnessBound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
 
 	#if VERBOSE
-	printf("\n Chosen smoothnessBound to %d \n", smoothnessBound);
+	printf(" :: Smoothness-bound = %d \n", smoothnessBound);
 	#endif
 	/**/
 
@@ -134,7 +134,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			gmp_printf(" %Zd ^2 = %Zd (mod %Zd) : OK!\n", smooth_candidate, num, good_primes[i]);
 			#endif
 
-			bit_matrix[p][num_index] = bit_matrix[p][num_index]^1;
+			bit_matrix[p][num_index] = (bit_matrix[p][num_index]+1) & 1;
 			mpz_init_set(nums[num_index], *smooth_candidate);
 			mpz_init_set(nums_p[num_index], good_primes[i]);
 			num_index++;
@@ -147,7 +147,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 			gmp_printf(" %Zd = %Zd - %Zd : OK!\n", r, *smooth_candidate, good_primes[i]);
 			#endif
 
-			bit_matrix[p][num_index] = bit_matrix[p][num_index]^1;
+			bit_matrix[p][num_index] = (bit_matrix[p][num_index]+1) & 1;
 			mpz_init_set(nums[num_index], r);
 			mpz_init_set(nums_p[num_index], good_primes[i]);
 			num_index++;

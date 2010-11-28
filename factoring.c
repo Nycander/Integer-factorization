@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <gmp.h>
 #include <limits.h>
-#include <windows.h>
 
 #include "settings.h"
 #include "factor_list.h"
@@ -18,6 +17,10 @@ void factor(mpz_t n)
 	factor_list * factors = malloc(sizeof(factor_list));
 	factors->value = NULL;
 	factors->next = NULL;
+
+	mpz_t original_n;
+	mpz_init_set(original_n, n);
+
 
 	#if USE_TRIAL_DIVISION
 
@@ -41,9 +44,6 @@ void factor(mpz_t n)
 	#endif
 	#endif
 
-
-	mpz_t original_n;
-	mpz_init_set(original_n, n);
 
 
 	while (mpz_sizeinbase(n, 2) >= USE_QUADRATIC_SIEVE_BIT_THRESHOLD)
@@ -75,7 +75,6 @@ void factor(mpz_t n)
 		}
 		#if VERBOSE
 		gmp_printf(" = %Zd\n\n", n);
-		Sleep(3000);
 		#endif
 	}
 	#if VERBOSE
