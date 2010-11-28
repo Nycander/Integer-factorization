@@ -148,9 +148,13 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 			#if VERBOSE && SIEVE_VERBOSE && GOODPRIME_VERBOSE
 			if (mpz_cmp_ui(tmp, 1) == 0)
-				gmp_printf("%Zd : OK!\n ", nums[number_count-1]);
+			{
+				gmp_printf("%Zd : OK!\n ", smoothNumCand);
+			}
 			else
+			{
 				gmp_printf("%Zd : Useless, could only factor to %Zd\n ", smoothNumCand, tmp);
+			}
 			#endif
 
 			mpz_clear(smoothNumCand);
