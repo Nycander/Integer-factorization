@@ -74,7 +74,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				#endif
 			}
 		}
-		int num_sieved_count = good_primes_count+16;
+		int num_sieved_count = good_primes_count+10;
 
 
 		#if VERBOSE
