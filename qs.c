@@ -78,7 +78,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 				#endif
 			}
 		}
-		int num_sieved_count = good_primes_count+10;
+		int num_sieved_count = good_primes_count+2;
 
 		#if VERBOSE
 		printf("Found %d good primes for trial division.\n", good_primes_count);
