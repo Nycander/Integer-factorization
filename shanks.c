@@ -33,7 +33,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 
 		mpz_t z;
 		mpz_init_set_ui(z, 0);
-		while(mpz_legendre(z, p) != -1){
+		while(mpz_legendre(z, príme) != -1){
 			mpz_add_ui(z,z,1);
 		}
 
@@ -42,7 +42,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		mpz_init(c);
 		mpz_init(t);
 		mpz_init(b);
-		mpz_init_set(fac2,2);
+		mpz_init_set_ui(fac2,2);
 		mpz_init_set_ui(M, S);
 		mpz_powm(c, z, Q, prime);
 		mpz_clear(z);
@@ -56,7 +56,7 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 		mpz_clear(Q);
 		mpz_init_set_ui(tmp2, 0);
 
-		while(true){
+		while(1){
 			//t = 1 mod prime
 			if(mpz_cmp_ui(t,1) == 0){
 				mpz_clear(c);
@@ -69,8 +69,8 @@ mpz_t * shanks_tonelli(mpz_t prime, mpz_t quad_resi){
 				return R;
 			}
 			mpz_set(tmp,0);
-			while(true){
-				if(mpz_cmp_ui(tmp,M) == 0)
+			while(1){
+				if(mpz_cmp(tmp,M) == 0)
 				{
 					mpz_clear(c);
 					mpz_clear(t);
