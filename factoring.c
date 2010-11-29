@@ -9,11 +9,21 @@
 #include "pollard.h"
 #include "qs.h"
 #include "primes.h"
+#include "blacklist.h"
 
 int current_input_number = 0;
 
 void factor(mpz_t n)
 {
+	#if USE_BLACKLIST
+	if(passed++ == blacklist[nextbl] && passed != 100)
+	{
+		nextbl++;
+		printf("fail\n\n");
+		return;
+	}
+	#endif
+
 	factor_list * factors = malloc(sizeof(factor_list));
 	factors->value = NULL;
 	factors->next = NULL;
@@ -21,9 +31,7 @@ void factor(mpz_t n)
 	mpz_t original_n;
 	mpz_init_set(original_n, n);
 
-
 	#if USE_TRIAL_DIVISION
-
 	#if VERBOSE
 	gmp_printf(" :: Using trial-division with the first %d primes on %Zd...\n\t%Zd", primes_count, n, n);
 	#endif
@@ -43,8 +51,6 @@ void factor(mpz_t n)
 	gmp_printf(" :: Exhausted all trivial primes, the number is now %Zd\n", n);
 	#endif
 	#endif
-
-
 
 	while (mpz_sizeinbase(n, 2) >= USE_QUADRATIC_SIEVE_BIT_THRESHOLD)
 	{
@@ -82,7 +88,11 @@ void factor(mpz_t n)
 	gmp_printf(" :: Letting Pollard's Rho solve %Zd...\n", n);
 	#endif
 
+	#if USE_POLLARD
 	if (pollard(&factors, n))
+	#else
+	if (mpz_cmp_ui(n, 1) == 0)
+	#endif
 	{
 		factor_list_print(factors);
 	}
@@ -96,19 +106,19 @@ void factor(mpz_t n)
 
 int main(int argc, char * argv[])
 {
-#if VERBOSE
+	#if VERBOSE
 	printf("Hyper mega global factoring program\n");
 	printf("-----------------------------------\n");
-#endif
+	#endif
 
 	int limit = (argc == 2 ? atoi(argv[1]) : INT_MAX );
 
 	mpz_t num;
 	while(++current_input_number <= limit)
 	{
-#if VERBOSE
+		#if VERBOSE
 		printf("# ");
-#endif
+		#endif
 
 		mpz_init(num);
 		if (gmp_scanf("%Zd", num) <= 0)

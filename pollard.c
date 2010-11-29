@@ -5,8 +5,6 @@
 #include "settings.h"
 #include "factor_list.h"
 #include "pollard.h"
-#include "blacklist.h"
-
 /**
  * Factor numbers using the Pollard's rho algorithm.
  *
@@ -15,12 +13,6 @@
 
 int pollard(factor_list ** f, const mpz_t n)
 {
-	passed++;
-	if(passed == blacklist[nextbl])
-	{
-		nextbl++;
-		return 0;
-	}
 	// Numbers below 2 should not be factored.
 	if (mpz_cmp_ui(n, 1) <= 0)
 	{
@@ -34,15 +26,44 @@ int pollard(factor_list ** f, const mpz_t n)
 		factor_list_add(f, v);
 		return 1;
 	}
+	#if USE_PERFECT_POWER_DETECTION
+	// Check for perfect powers
+	else if (mpz_perfect_power_p(n))
+	{
+		// Find the exponent
+		mpz_t p, r;
+		mpz_init(r);
+		mpz_init_set_ui(p, 3);
+
+		while(1)
+		{
+			if (mpz_root(r, n, mpz_get_ui(p)))
+				break;
+
+			mpz_nextprime(p, p);
+		}
+		// r^p = n
+		mpz_t modified_n;
+		mpz_init_set(modified_n, n);
+		for(int i = 0; i < mpz_get_ui(p); i++)
+		{
+			mpz_t * v = malloc(sizeof(mpz_t));
+			mpz_init_set(*v, r);
+			factor_list_add(f, v);
+		}
+		return 1;
+	}
+	#endif
 
 
-#if VERBOSE
+	#if VERBOSE
 	gmp_printf("\tSearching for x * y = %Zd ...\n", n);
-#endif
+	#endif
 
 	mpz_t divisor;		mpz_init(divisor);
 	mpz_t divend;		mpz_init(divend);
 	// Check for even square root
+	#if USE_PERFECT_SQUARE_DETECTION
 	if (mpz_perfect_square_p(n))
 	{
 		mpz_sqrt(divisor, n);
@@ -50,11 +71,15 @@ int pollard(factor_list ** f, const mpz_t n)
 	}
 	else
 	{
+	#endif
 		if (! rho(divisor, n))
 			return 0;
 
 		mpz_divexact(divend, n, divisor);
+
+	#if USE_PERFECT_SQUARE_DETECTION
 	}
+	#endif
 
 #if VERBOSE
 	gmp_printf("\tFound: %Zd * %Zd = %Zd\n", divisor, divend, n);
@@ -116,6 +141,17 @@ int brent(const mpz_t N, mpz_t divisor)
 
 	while(mpz_cmp_ui(divisor,1)==0)
 	{
+		#if USE_POLLARD_TRESHOLD
+		if(iterations++>POLLARD_THRESHOLD)
+		{
+			#if VERBOSE
+			gmp_printf("Gave up on %Zd after %i iterations.\n",N,iterations);
+			#endif
+			ret = 0;
+			break;
+		}
+		#endif
+
 		if(mpz_cmp(power, lambda)==0)
 		{
 			mpz_set(tortoise, hare);
