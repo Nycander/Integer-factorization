@@ -348,7 +348,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	mpz_t permutations_of_unknowns;
 	mpz_init(permutations_of_unknowns);
-	mpz_ui_pow_ui(permutations_of_unknowns, 2, (unknowns > 32 ? 32 : unknowns));
+	mpz_ui_pow_ui(permutations_of_unknowns, 2, (unknowns > MAX_NUMBER_OF_SOLUTION_VECTORS ? MAX_NUMBER_OF_SOLUTION_VECTORS : unknowns));
 
 	mpz_t ret1, ret2;
 	mpz_init(ret1), mpz_init(ret2);

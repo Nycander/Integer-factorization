@@ -10,4 +10,8 @@
 #define POLLARD_THRESHOLD 250000
 #define USE_BRENT_INSTEAD_OF_FLOYD 0
 
+
+// Quadratic sieve settings
+#define MAX_NUMBER_OF_SOLUTION_VECTORS 16 // 2^(number)
+
 #endif
