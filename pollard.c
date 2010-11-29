@@ -195,9 +195,9 @@ int floyd(const mpz_t N, mpz_t divisor)
 	{
 		if (++iterations == POLLARD_THRESHOLD)
 		{
-		#if VERBOSE
+			#if VERBOSE
 			gmp_printf("\tGave up after %d iterations on number: %Zd\n", iterations-1, N);
-		#endif
+			#endif
 			mpz_clear(x);
 			mpz_clear(y);
 			return 0;
