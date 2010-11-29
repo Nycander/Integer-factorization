@@ -5,8 +5,6 @@
 #include "settings.h"
 #include "factor_list.h"
 #include "pollard.h"
-#include "blacklist.h"
-
 /**
  * Factor numbers using the Pollard's rho algorithm.
  *
@@ -15,12 +13,6 @@
 
 int pollard(factor_list ** f, const mpz_t n)
 {
-	passed++;
-	if(passed == blacklist[nextbl])
-	{
-		nextbl++;
-		return 0;
-	}
 	// Numbers below 2 should not be factored.
 	if (mpz_cmp_ui(n, 1) <= 0)
 	{

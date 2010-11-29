@@ -9,11 +9,18 @@
 #include "pollard.h"
 #include "qs.h"
 #include "primes.h"
+#include "blacklist.h"
 
 int current_input_number = 0;
 
 void factor(mpz_t n)
 {
+	if(passed++ == blacklist[nextbl] && passed != 100)
+	{
+		nextbl++;
+		printf("fail\n\n");
+		return;
+	}
 	factor_list * factors = malloc(sizeof(factor_list));
 	factors->value = NULL;
 	factors->next = NULL;
