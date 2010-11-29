@@ -26,9 +26,8 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	int num_size = mpz_sizeinbase(num, 2);
 	int ln_n = M_LN2 * (double)num_size;
 
-	//smoothness_bound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
-	float d = 1.5;
-	smoothness_bound = (int) (0.63*pow(ln_n, d*sqrt(ln_n)));
+	smoothness_bound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
+//	smoothness_bound = (int) log(num_size)*20;
 
 
 	#if VERBOSE
@@ -75,7 +74,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	int num_index = 0;
 	mpz_t prime;
 	mpz_init_set_ui(prime, 2);
-	while(num_index < 2*smoothness_bound)
+	while(num_index < smoothness_bound)
 	{
 		mpz_nextprime(prime, prime); // side-effect: start at 3
 
