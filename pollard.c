@@ -26,6 +26,32 @@ int pollard(factor_list ** f, const mpz_t n)
 		factor_list_add(f, v);
 		return 1;
 	}
+	// Check for perfect powers
+	else if (mpz_perfect_power_p(n))
+	{
+		// Find the exponent
+		mpz_t p, r;
+		mpz_init(r);
+		mpz_init_set_ui(p, 3);
+
+		while(1)
+		{
+			if (mpz_root(r, n, mpz_get_ui(p)))
+				break;
+
+			mpz_nextprime(p, p);
+		}
+		// r^p = n
+		mpz_t modified_n;
+		mpz_init_set(modified_n, n);
+		for(int i = 0; i < mpz_get_ui(p); i++)
+		{
+			mpz_t * v = malloc(sizeof(mpz_t));
+			mpz_init_set(*v, r);
+			factor_list_add(f, v);
+		}
+		return 1;
+	}
 
 
 #if VERBOSE

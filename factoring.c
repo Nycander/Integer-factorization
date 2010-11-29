@@ -21,6 +21,7 @@ void factor(mpz_t n)
 		printf("fail\n\n");
 		return;
 	}
+
 	factor_list * factors = malloc(sizeof(factor_list));
 	factors->value = NULL;
 	factors->next = NULL;
@@ -30,7 +31,6 @@ void factor(mpz_t n)
 
 
 	#if USE_TRIAL_DIVISION
-
 	#if VERBOSE
 	gmp_printf(" :: Using trial-division with the first %d primes on %Zd...\n\t%Zd", primes_count, n, n);
 	#endif
@@ -50,9 +50,7 @@ void factor(mpz_t n)
 	gmp_printf(" :: Exhausted all trivial primes, the number is now %Zd\n", n);
 	#endif
 	#endif
-
-
-
+	
 	while (mpz_sizeinbase(n, 2) >= USE_QUADRATIC_SIEVE_BIT_THRESHOLD)
 	{
 		#if VERBOSE
