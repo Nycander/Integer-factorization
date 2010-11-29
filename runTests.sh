@@ -21,11 +21,11 @@ do
 	resultstr="1"
 	for i in $output; do
 		# Check for prime number
-		isPrime=$(echo $i | ./checkForPrime.bsh)
-		if [ "$isPrime" = "$i is not prime" ]; then
-			echo "\tFailed test '$line' because: $isPrime"
-			break
-		fi
+		#isPrime=$(echo $i | ./checkForPrime.bsh)
+		#if [ "$isPrime" = "$i is not prime" ]; then
+		#	echo "\tFailed test '$line' because: $isPrime"
+		#	break
+		#fi
 
 		resultstr="$resultstr*$i"
 		result=$(echo "$result*$i" | bc)

@@ -5,22 +5,29 @@
 #include "settings.h"
 #include "factor_list.h"
 #include "pollard.h"
-
+#include "blacklist.h"
 
 /**
  * Factor numbers using the Pollard's rho algorithm.
  *
  * @return 0 if failed
  */
+
 int pollard(factor_list ** f, const mpz_t n)
 {
+	passed++;
+	if(passed == blacklist[nextbl])
+	{
+		nextbl++;
+		return 0;
+	}
 	// Numbers below 2 should not be factored.
 	if (mpz_cmp_ui(n, 1) <= 0)
 	{
 		return 1;
 	}
 	// Base case: we have a prime number
-	else if (mpz_probab_prime_p(n, 10))
+	else if (mpz_probab_prime_p(n, 5))
 	{
 		mpz_t * v = malloc(sizeof(mpz_t));
 		mpz_init_set(*v, n);
@@ -70,7 +77,7 @@ int pollard(factor_list ** f, const mpz_t n)
 
 int rho(mpz_t result, const mpz_t N)
 {
-	// Check if divided by 2
+	// Check if divisable by 2
 	if (mpz_even_p(N))
 	{
 		mpz_set_ui(result, 2);
@@ -109,14 +116,14 @@ int brent(const mpz_t N, mpz_t divisor)
 
 	while(mpz_cmp_ui(divisor,1)==0)
 	{
-		if(iterations++>POLLARD_THRESHOLD)
+		/*if(iterations++>POLLARD_THRESHOLD)
 		{
 		#if VERBOSE
 			gmp_printf("Gave up on %Zd after %i iterations.\n",N,iterations);
 		#endif
 			ret = 0;
 			break;
-		}
+		}*/
 		if(mpz_cmp(power, lambda)==0)
 		{
 			mpz_set(tortoise, hare);

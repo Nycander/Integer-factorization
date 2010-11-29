@@ -7,7 +7,11 @@
 #define USE_QUADRATIC_SIEVE_BIT_THRESHOLD 200
 
 // Pollard's Rho settings
-#define POLLARD_THRESHOLD 250000
+#define POLLARD_THRESHOLD 150000
 #define USE_BRENT_INSTEAD_OF_FLOYD 1
+
+
+// Quadratic sieve settings
+#define MAX_NUMBER_OF_SOLUTION_VECTORS 12 // 2^(number)
 
 #endif
