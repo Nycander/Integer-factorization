@@ -15,13 +15,14 @@ int current_input_number = 0;
 
 void factor(mpz_t n)
 {
+#if USE_BLACKLIST
 	if(passed++ == blacklist[nextbl] && passed != 100)
 	{
 		nextbl++;
 		printf("fail\n\n");
 		return;
 	}
-
+#endif
 	factor_list * factors = malloc(sizeof(factor_list));
 	factors->value = NULL;
 	factors->next = NULL;
