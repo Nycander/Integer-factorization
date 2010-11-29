@@ -6,6 +6,7 @@
 #include "factor_list.h"
 #include "pollard.h"
 
+
 /**
  * Factor numbers using the Pollard's rho algorithm.
  *
@@ -96,6 +97,7 @@ int rho(mpz_t result, const mpz_t N)
 
 int brent(const mpz_t N, mpz_t divisor)
 {
+	/*1-20, 36 valid, none up to 48 is. */
 	unsigned int iterations = 0;
 	unsigned int x0 = 2;
 	mpz_t power;	mpz_init_set_ui(power, 1);
