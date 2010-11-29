@@ -457,6 +457,11 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 		}
 	}
 
+	for(int s = 0; s < bit_matrix_width; s++){
+		mpz_clear(nums[s]);
+		mpz_clear(nums_p[s]);
+	}
+
 	// Clear our variables!
 	mpz_clear(ret1), mpz_clear(ret2), mpz_clear(tmp), mpz_clear(mod);
 
