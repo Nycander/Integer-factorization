@@ -88,7 +88,11 @@ void factor(mpz_t n)
 	gmp_printf(" :: Letting Pollard's Rho solve %Zd...\n", n);
 	#endif
 
+	#if USE_POLLARD
 	if (pollard(&factors, n))
+	#else
+	if (mpz_cmp_ui(n, 1) == 0)
+	#endif
 	{
 		factor_list_print(factors);
 	}
