@@ -27,7 +27,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	int ln_n = M_LN2 * (double)num_size;
 
 	//smoothness_bound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
-	long d = 1.5
+	long d = 1.5;
 	smoothness_bound = (int) (0.63*pow(ln_n, d*sqrt(ln_n*log(ln_n))));
 
 
