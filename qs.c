@@ -348,7 +348,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 
 	mpz_t permutations_of_unknowns;
 	mpz_init(permutations_of_unknowns);
-	mpz_ui_pow_ui(permutations_of_unknowns, 2, unknowns);
+	mpz_ui_pow_ui(permutations_of_unknowns, 2, (unknowns > 32 ? 32 : unknowns));
 
 	mpz_t ret1, ret2;
 	mpz_init(ret1), mpz_init(ret2);
@@ -358,7 +358,7 @@ int quadratic_sieve(factor_list ** result, const mpz_t num)
 	mpz_init_set(modified_n, num);
 
 	mpz_t i;
-	for(mpz_init_set_ui(i, 1); mpz_cmp(i, permutations_of_unknowns) < 0 && mpz_cmp_ui(i, 32) < 0; mpz_add_ui(i, i, 1))
+	for(mpz_init_set_ui(i, 1); mpz_cmp(i, permutations_of_unknowns) < 0; mpz_add_ui(i, i, 1))
 	{
 		// Idea: i can be used with masks to get the current value of the unknowns.
 		char solution[bit_matrix_width];
