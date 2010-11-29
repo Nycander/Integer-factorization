@@ -22,17 +22,21 @@ int smoothness_bound = 500;
 
 int quadratic_sieve(factor_list ** result, const mpz_t num)
 {
-	/** /
+	/**/
 	int num_size = mpz_sizeinbase(num, 2);
 	int ln_n = M_LN2 * (double)num_size;
 
-	smoothness_bound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
+	//smoothness_bound = (int) (0.63*pow(exp(sqrt(ln_n * log(ln_n))), 0.35355339059));
+	long d = 1.5
+	smoothness_bound = (int) (0.63*pow(ln_n, d*sqrt(ln_n*log(ln_n))));
+
 
 	#if VERBOSE
 	printf(" :: Smoothness-bound = %d \n", smoothness_bound);
 	#endif
 	/**/
-	smoothness_bound = mpz_sizeinbase(num, 2);
+	//smoothness_bound = mpz_sizeinbase(num, 2);
+
 
 	// Numbers below 2 should not be factored.
 	if (mpz_cmp_ui(num, 1) <= 0)
