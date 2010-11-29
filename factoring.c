@@ -54,14 +54,15 @@ void factor(mpz_t n)
 
 		int qs_result = quadratic_sieve(&factors, n);
 
+		if (qs_result == 0)
+		{
+			printf("fail\n\n");
+			return;
+		}
+
 		#if VERBOSE
 		gmp_printf(" :: Dividing the number %Zd with all found factors from QS... \n \t%Zd", n, n);
 		#endif
-
-		if (qs_result == 0)
-		{
-			break;
-		}
 
 		mpz_set(n, original_n);
 		factor_list * tmp = factors;
