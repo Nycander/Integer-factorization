@@ -116,14 +116,6 @@ int brent(const mpz_t N, mpz_t divisor)
 
 	while(mpz_cmp_ui(divisor,1)==0)
 	{
-		/*if(iterations++>POLLARD_THRESHOLD)
-		{
-		#if VERBOSE
-			gmp_printf("Gave up on %Zd after %i iterations.\n",N,iterations);
-		#endif
-			ret = 0;
-			break;
-		}*/
 		if(mpz_cmp(power, lambda)==0)
 		{
 			mpz_set(tortoise, hare);
