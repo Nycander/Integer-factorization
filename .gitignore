@@ -3,3 +3,5 @@ factoringZ.exe
 *.exe
 /.kattisrc
 *.sublime-project
+/primes.txt
+/prime_generator.c
